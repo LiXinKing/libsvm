@@ -15,22 +15,21 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
 public class FileChooserAdapter extends BaseAdapter {
 
 	private ArrayList<FileInfo> mFileLists;
 	private LayoutInflater mLayoutInflater = null;
 
-//	private static ArrayList<String> PPT_SUFFIX = new ArrayList<String>();
+	// private static ArrayList<String> PPT_SUFFIX = new ArrayList<String>();
 	private static ArrayList<String> SVM_SUFFIX = new ArrayList<String>();
 
-//	static {
-//		PPT_SUFFIX.add(".ppt");
-//		PPT_SUFFIX.add(".pptx");
-//	}
+	// static {
+	// PPT_SUFFIX.add(".ppt");
+	// PPT_SUFFIX.add(".pptx");
+	// }
 	static {
-		SVM_SUFFIX.add(".txt");//先设置成只支持txt
-//		SVM_SUFFIX.add(".svm");
+		SVM_SUFFIX.add(".txt");// 先设置成只支持txt
+		// SVM_SUFFIX.add(".svm");
 	}
 
 	public FileChooserAdapter(Context context, ArrayList<FileInfo> fileLists) {
@@ -74,23 +73,22 @@ public class FileChooserAdapter extends BaseAdapter {
 		}
 
 		FileInfo fileInfo = getItem(position);
-        //TODO 
-		
+		// TODO
+
 		holder.tvFileName.setText(fileInfo.getFileName());
-		
-		if(fileInfo.isDirectory()){      //文件夹
+
+		if (fileInfo.isDirectory()) { // 文件夹
 			holder.imgFileIcon.setImageResource(R.drawable.ic_folder);
 			holder.tvFileName.setTextColor(Color.GRAY);
 		}
 
-		else if(fileInfo.issvmfile()){
+		else if (fileInfo.issvmfile()) {
 			holder.imgFileIcon.setImageResource(R.drawable.ic_svm);
 			holder.tvFileName.setTextColor(Color.BLUE);
-		}
-		else {                           //未知文件
-//			holder.imgFileIcon.setImageResource(R.drawable.ic_file_unknown);
-//			holder.tvFileName.setTextColor(Color.GRAY);
-			//待增加，但是要先修改filechooseactivity的第88行
+		} else { // 未知文件
+		// holder.imgFileIcon.setImageResource(R.drawable.ic_file_unknown);
+		// holder.tvFileName.setTextColor(Color.GRAY);
+			// 待增加，但是要先修改filechooseactivity的第88行
 		}
 		return view;
 	}
@@ -105,9 +103,8 @@ public class FileChooserAdapter extends BaseAdapter {
 		}
 	}
 
-	
 	enum FileType {
-		FILE , DIRECTORY;
+		FILE, DIRECTORY;
 	}
 
 	// =========================
@@ -124,23 +121,22 @@ public class FileChooserAdapter extends BaseAdapter {
 			fileType = isDirectory ? FileType.DIRECTORY : FileType.FILE;
 		}
 
-
-		public boolean issvmfile(){
-			if(fileName.lastIndexOf(".") < 0)  //Don't have the suffix 
-				return false ;
+		public boolean issvmfile() {
+			if (fileName.lastIndexOf(".") < 0) // Don't have the suffix
+				return false;
 			String fileSuffix = fileName.substring(fileName.lastIndexOf("."));
-			if(!isDirectory() && SVM_SUFFIX.contains(fileSuffix))
-				return true ;
+			if (!isDirectory() && SVM_SUFFIX.contains(fileSuffix))
+				return true;
 			else
-				return false ;
+				return false;
 		}
-		public boolean isDirectory(){
-			if(fileType == FileType.DIRECTORY)
-				return true ;
+		public boolean isDirectory() {
+			if (fileType == FileType.DIRECTORY)
+				return true;
 			else
-				return false ;
+				return false;
 		}
-		
+
 		public String getFileName() {
 			return fileName;
 		}

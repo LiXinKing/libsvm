@@ -1,61 +1,51 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-	android:background="@drawable/background"
-    >
+    android:background="@drawable/background"
+    android:orientation="vertical" >
 
-	 <LinearLayout 
-        android:orientation="vertical"
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-             android:layout_weight="1"
-        >
-	    	 <LinearLayout 
-        		android:orientation="vertical"
-       			android:layout_width="fill_parent"
-        		android:layout_height="fill_parent"
-            	android:layout_weight="1"
-            		android:gravity="center_horizontal|center_vertical"
-        	>
+        android:layout_weight="1"
+        android:orientation="vertical" >
 
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="vertical" >
+        </LinearLayout>
 
-           </LinearLayout>
-        
-       <LinearLayout 
-        		android:orientation="horizontal"
-       			android:layout_width="fill_parent"
-        		android:layout_height="fill_parent"
-            	android:layout_weight="6"
-        	>
-        <Button
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:textSize="8dip"
-	    android:onClick="onClick_delete"
-		android:text="删除数据"
-	 
-	    />
-        <Button
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:id="@+id/writecon"
-	    android:textSize="8dip"
-	   	android:text="开始"
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="6"
+            android:orientation="horizontal" >
 
-	    />
-        
-       <Button
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:id="@+id/state"
-	    android:onClick="onClick_state"
-	    android:textSize="8dip"
-	   	android:text="静止"
-	    />
-           </LinearLayout>
-           
-         </LinearLayout>
-         
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClick_delete"
+                android:text="删除数据"
+                android:textSize="8dip" />
+
+            <Button
+                android:id="@+id/writecon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="开始"
+                android:textSize="8dip" />
+
+            <Button
+                android:id="@+id/state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClick_state"
+                android:text="静止"
+                android:textSize="8dip" />
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>
