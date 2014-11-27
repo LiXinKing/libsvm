@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+		<LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_horizontal"
+           	android:layout_weight="1"
+        >
+		   <TextView 
+    	   	android:id="@+id/txt1"
+    	    android:layout_width="wrap_content" 
+   	 	    android:layout_height="wrap_content"
+    	    android:text="请选择训练的文件"
+    	    android:textScaleX="1.2"
+    	    android:paddingTop="40dp"
+    	    />
+		   <Button
+        android:id="@+id/btOpenFile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="请选择文件" 
+        >
+	    </Button>
+	
+		</LinearLayout>		
+		<LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_horizontal"
+           	android:layout_weight="1"
+        >
+		   <TextView 
+    	   	android:id="@+id/txt2"
+    	    android:layout_width="wrap_content" 
+   	 	    android:layout_height="wrap_content"
+    	    android:text="请选择预测的文件"
+    	    android:textScaleX="1.2"
+    	    android:paddingTop="40dp"
+    	    />
+		   <Button
+        android:id="@+id/btpredict"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="请选择文件" 
+        >
+	    </Button>
+
+	
+		</LinearLayout>		
+				<LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_horizontal"
+           	android:layout_weight="1"
+        >
+		
+			    <TextView 
+    	   	android:id="@+id/txt3"
+    	    android:layout_width="wrap_content" 
+   	 	    android:layout_height="wrap_content"
+    	    android:text="请选择训练模板"
+    	    android:textScaleX="1.2"
+    	    android:paddingTop="40dp"
+    	    />
+		   <Button
+        android:id="@+id/btmodel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="请选择文件" 
+        >
+	    </Button>
+	</LinearLayout>	
+	<LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        >
+		   <Button
+        android:id="@+id/train"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="train"
+        android:text="训练" >
+	    </Button>
+	    <Button
+        android:id="@+id/predict"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="predict"
+        android:text="预测" >
+	    </Button>
+</LinearLayout>
+	<LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        >
+	    <Button
+        android:id="@+id/read_train"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="read_train"
+        android:text="训练数据" >
+  		</Button>
+  		
+	   	<Button
+        android:id="@+id/read_predict"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="read_predict"
+        android:text="预测数据" >
+  		</Button>
+  		<Button
+        android:id="@+id/train_static"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="train_static"
+        android:text="train_static" >
+  		</Button>
+	
+</LinearLayout>
+			<LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        >
+	  <Button
+        android:id="@+id/start_train"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="start_train"
+        android:text="start_train" >
+  		</Button>
+  		
+
+  		<Button
+        android:id="@+id/start_pre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="start_pre"
+        android:text="start_pre" >
+  		</Button>
+  		  <Button
+        android:id="@+id/pre_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="pre_result"
+        android:text="pre_result" >
+  		</Button>
+			    
+	</LinearLayout>
+</LinearLayout>

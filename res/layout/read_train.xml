@@ -1,0 +1,118 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+	android:background="@drawable/background"
+    >
+
+
+    <LinearLayout 
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        >
+      <LinearLayout 
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="6"
+        >
+        <EditText  android:layout_height="180px"
+            	   android:layout_width="240px"
+            	   android:hint="num"
+            	   android:id="@+id/num"
+            	   android:digits="0123456789"
+            	   android:textSize="20pt"
+            	   android:singleLine="true"
+            	   android:maxLength="1"
+            />
+		<TextView 
+		    android:layout_height="50px"
+            android:layout_width="50px"
+            android:id="@+id/numdis"
+            android:text="0"
+			    />
+		<EditText  android:layout_height="180px"
+            	   android:layout_width="240px"
+            	   android:hint="px"
+            	   android:id="@+id/px"
+            	   android:singleLine="true"
+            	   android:maxLength="4"
+            	   android:digits="0123456789"
+            	    android:text="500"
+            />
+		<EditText  android:layout_height="180px"
+            	   android:layout_width="240px"
+            	   android:hint="py"
+            	   android:id="@+id/py"
+            	   android:singleLine="true"
+            	   android:maxLength="4"
+            	   android:digits="0123456789"
+            	   android:text="500"
+            />
+		<EditText  android:layout_height="180px"
+            	   android:layout_width="240px"
+            	   android:hint="distance"
+            	   android:id="@+id/distance"
+            	   android:singleLine="true"
+            	   android:maxLength="4"
+            	   android:digits="0123456789"
+            	     android:text="2000"
+            />
+
+			 </LinearLayout>
+	 <LinearLayout 
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        >
+	   <ImageView 
+    	android:id="@+id/draw"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+  				  />
+	  	</LinearLayout>
+	 </LinearLayout>
+	 <LinearLayout 
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+             android:layout_weight="6"
+        >
+
+
+        <Button
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:id="@+id/writecon"
+	    android:textSize="8dip"
+	   	android:background="@drawable/button1"
+	    />
+
+
+
+        <Button
+       android:id="@+id/draw"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textSize="8dip"
+	    android:onClick="onDraw"
+        android:text="draw" 
+	    />
+      <Button
+       android:id="@+id/onClick_delete"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:textSize="8dip"
+	    android:onClick="onClick_delete"
+        android:text="onClick_delete" 
+	    />
+
+     
+           
+         </LinearLayout>
+         
+
+</LinearLayout>

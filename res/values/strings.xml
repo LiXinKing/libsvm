@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">libsvm</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="open_file_error_format">The format of file is error</string>
+    <string name="open_file_none">"You don't choose any file"</string>
+    <string name="empty_hint">The directory is empty</string>
+    <string name="sdcard_unmonted_hint">Please mount the sdcard at first</string>
+    <string name="open_file_failed">operation failed</string>
+
+</resources>
