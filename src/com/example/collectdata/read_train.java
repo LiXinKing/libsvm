@@ -185,19 +185,24 @@ public class read_train extends Activity implements OnTouchListener {
 				accdtest[1] = accd[1];
 				accdtest[2] = accd[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timeacc = time;
+
+
+			}
+
+			else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+				rotation[0] = (float) values[0];
+				rotation[1] = (float) values[1];
+				rotation[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
+				timerotation = time;
 				if (wc == 1) {
 					float[] accd1 = new float[3];
-					float[] n = new float[3];
-					n[0] = 1;
-					n[1] = 1;
-					n[2] = 1;
 
 					float[][] buffer = {{(float) accd[0], 0, 0},
 							{(float) accd[1], 0, 0}, {(float) accd[2], 0, 0}};
-					float[] Orientation = new float[3];
+//					float[] Orientation = new float[3];
 					SensorManager.getRotationMatrixFromVector(mRotationMatrix,
 							rotation);
-					SensorManager.getOrientation(mRotationMatrix, Orientation);
+//					SensorManager.getOrientation(mRotationMatrix, Orientation);
 					float[][] rotationversion = matrixinversion(mRotationMatrix);
 					float[][] mk = {
 							{mRotationMatrix[0], mRotationMatrix[1],
@@ -247,14 +252,6 @@ public class read_train extends Activity implements OnTouchListener {
 						e.printStackTrace();
 					}
 				}
-
-			}
-
-			else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-				rotation[0] = (float) values[0];
-				rotation[1] = (float) values[1];
-				rotation[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
-				timerotation = time;
 
 			} else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
 				gyrd[0] = (float) values[0];
