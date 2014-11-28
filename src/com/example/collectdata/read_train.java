@@ -258,6 +258,7 @@ public class read_train extends Activity implements OnTouchListener {
 				gyrd[1] = (float) values[1];
 				gyrd[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timegyr = time;
+				Log.v("1","a");
 			}
 
 		}
@@ -317,8 +318,7 @@ public class read_train extends Activity implements OnTouchListener {
 			}
 			if (i != 1)
 				return;
-			positionArrayList = translatedata_train.getposition(AccArrayList,
-					true);
+			positionArrayList = translatedata_train.getposition(AccArrayList,true);
 		}
 		float[] x = positionArrayList.get(0);
 		float[] y = positionArrayList.get(1);
