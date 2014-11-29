@@ -1,18 +1,22 @@
 package com.example.collectdata;
 
 import java.io.File;
+
 import com.example.libsvm.R;
+
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import com.example.handledata.translatedata;
-
 import com.example.preproccess.PCA_done;
 
 import android.R.integer;
+import android.R.string;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -185,8 +189,6 @@ public class read_train extends Activity implements OnTouchListener {
 				accdtest[1] = accd[1];
 				accdtest[2] = accd[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timeacc = time;
-
-
 			}
 
 			else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
@@ -195,48 +197,12 @@ public class read_train extends Activity implements OnTouchListener {
 				rotation[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timerotation = time;
 				if (wc == 1) {
-					float[] accd1 = new float[3];
-
-					float[][] buffer = {{(float) accd[0], 0, 0},
-							{(float) accd[1], 0, 0}, {(float) accd[2], 0, 0}};
-//					float[] Orientation = new float[3];
-					SensorManager.getRotationMatrixFromVector(mRotationMatrix,
-							rotation);
-//					SensorManager.getOrientation(mRotationMatrix, Orientation);
-					float[][] rotationversion = matrixinversion(mRotationMatrix);
-					float[][] mk = {
-							{mRotationMatrix[0], mRotationMatrix[1],
-									mRotationMatrix[2]},
-							{mRotationMatrix[3], mRotationMatrix[4],
-									mRotationMatrix[5]},
-							{mRotationMatrix[6], mRotationMatrix[7],
-									mRotationMatrix[8]}};
-					rotationversion = maxtrixmutiply(mk, buffer);
-					accd[0] = rotationversion[0][0];
-					accd[1] = rotationversion[1][0];
-					accd[2] = rotationversion[2][0];
-					// if(Math.abs(accd[0])<0.15)accd[0]=0;
-					// if(Math.abs(accd[1])<0.15)accd[1]=0;
-					// if(Math.abs(accd[2])<0.15)accd[2]=0;
 					try {
 
 						FileOutputStream foStream = new FileOutputStream(
 								tmpString, true); // 定义传感器数据的输出流
-						// File sensor1=new File("//sdcard/sensortestacc.txt");
-						/*
-						 * String
-						 * sensorstr=accd[0]+" "+accd[1]+" "+accd[2]+" "+timeacc
-						 * +" "
-						 * +accdtest[0]+" "+accdtest[1]+" "+accdtest[2]+" "+
-						 * "0"+" "
-						 * +rotation[0]+" "+rotation[1]+" "+rotation[2]+" "
-						 * +timerotation+" "+
-						 * -Orientation[0]*180/Math.PI+" "+-Orientation
-						 * [1]*180/Math
-						 * .PI+" "+-Orientation[2]*180/Math.PI+" "+"0"+"\n";
-						 */
 						String sensorstr = accd[0] + " " + accd[1] + " "
-								+ accd[2] + " " + timeacc + " " + gyrd[0] + " "
+								+ accd[2] + " " + timeacc +" "+rotation[0]+" "+rotation[1]+" "+rotation[2]+ " " +timerotation+" "+ gyrd[0] + " "
 								+ gyrd[1] + " " + gyrd[2] + " " + timegyr
 								+ "\n";
 						byte[] buffer11 = new byte[sensorstr.length() * 2];
@@ -418,6 +384,34 @@ public class read_train extends Activity implements OnTouchListener {
 			}
 		return result;
 	}// 一个矩阵乘法
+	
+	
+	public void  getChangedAcc() throws IOException {
+		BufferedReader sb=new BufferedReader(new FileReader(tmpString));
+		String s=null;
+		int preaccx=0;
+		int pre
+		while((s=sb.readLine())!=null){
+			String stringArray[]=s.split(" ");
+		
+		float[][] buffer = {{ Float.parseFloat(stringArray[0]), 0, 0},
+				{Float.parseFloat(stringArray[1]), 0, 0}, {Float.parseFloat(stringArray[2]), 0, 0}};
+		SensorManager.getRotationMatrixFromVector(mRotationMatrix,
+				rotation);
+		float[][] rotationversion = matrixinversion(mRotationMatrix);
+		float[][] mk = {
+				{mRotationMatrix[0], mRotationMatrix[1],
+						mRotationMatrix[2]},
+				{mRotationMatrix[3], mRotationMatrix[4],
+						mRotationMatrix[5]},
+				{mRotationMatrix[6], mRotationMatrix[7],
+						mRotationMatrix[8]}};
+		rotationversion = maxtrixmutiply(mk, buffer);
+		accd[0] = rotationversion[0][0];
+		accd[1] = rotationversion[1][0];
+		accd[2] = rotationversion[2][0];
+		}
+	}
 
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
@@ -425,7 +419,14 @@ public class read_train extends Activity implements OnTouchListener {
 		if (event.getAction() == MotionEvent.ACTION_UP) {
 			wc = 0;
 			vibrator.vibrate(200);
-			view.setBackgroundResource(R.drawable.button1);
+			try {
+				getChangedAcc();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		
+		/*	view.setBackgroundResource(R.drawable.button1);
 			final Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage("确认输入？");
 
@@ -474,7 +475,7 @@ public class read_train extends Activity implements OnTouchListener {
 
 						}
 					});
-			builder.create().show();
+			builder.create().show();*/
 			/*
 			 * File sensor1=new File("//sdcard/sensortestacc.txt"); //获取文件对象\
 			 * lastbyte=sensor1.length();"//sdcard/sensortestacc.tmp"
