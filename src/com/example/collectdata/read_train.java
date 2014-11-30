@@ -197,8 +197,9 @@ public class read_train extends Activity implements OnTouchListener {
 					float[] Orientation = new float[3];
 					SensorManager.getRotationMatrixFromVector(mRotationMatrix,
 							rotation);
-					SensorManager.getOrientation(mRotationMatrix, Orientation);
-					float[][] rotationversion = matrixinversion(mRotationMatrix);
+//					SensorManager.getOrientation(mRotationMatrix, Orientation);
+//					float[][] rotationversion = matrixinversion(mRotationMatrix);
+					float[][] rotationversion =new float[3][];
 					float[][] mk = {
 							{mRotationMatrix[0], mRotationMatrix[1],
 									mRotationMatrix[2]},
@@ -210,26 +211,16 @@ public class read_train extends Activity implements OnTouchListener {
 					accd[0] = rotationversion[0][0];
 					accd[1] = rotationversion[1][0];
 					accd[2] = rotationversion[2][0];
-					// if(Math.abs(accd[0])<0.15)accd[0]=0;
-					// if(Math.abs(accd[1])<0.15)accd[1]=0;
-					// if(Math.abs(accd[2])<0.15)accd[2]=0;
+					Log.v("gravity1", String.valueOf(accd[0]));
+					Log.v("gravity2", String.valueOf(accd[1]));
+					Log.v("gravity3", String.valueOf(accd[2]));
+
+
 					try {
 
 						FileOutputStream foStream = new FileOutputStream(
 								tmpString, true); // 定义传感器数据的输出流
-						// File sensor1=new File("//sdcard/sensortestacc.txt");
-						/*
-						 * String
-						 * sensorstr=accd[0]+" "+accd[1]+" "+accd[2]+" "+timeacc
-						 * +" "
-						 * +accdtest[0]+" "+accdtest[1]+" "+accdtest[2]+" "+
-						 * "0"+" "
-						 * +rotation[0]+" "+rotation[1]+" "+rotation[2]+" "
-						 * +timerotation+" "+
-						 * -Orientation[0]*180/Math.PI+" "+-Orientation
-						 * [1]*180/Math
-						 * .PI+" "+-Orientation[2]*180/Math.PI+" "+"0"+"\n";
-						 */
+
 						String sensorstr = accd[0] + " " + accd[1] + " "
 								+ accd[2] + " " + timeacc + " " + gyrd[0] + " "
 								+ gyrd[1] + " " + gyrd[2] + " " + timegyr
