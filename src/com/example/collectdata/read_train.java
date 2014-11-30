@@ -326,6 +326,7 @@ public class read_train extends Activity implements OnTouchListener {
 		sensor.delete(); // 将文件删
 		File sensortmp = new File(tmpString);
 		sensortmp.delete();
+		new File(tmpStringOutput).delete();
 		vibrator.vibrate(200);
 	}
 
@@ -353,10 +354,10 @@ public class read_train extends Activity implements OnTouchListener {
 		foStream.write(buffer);// 读出后写回去
 		s = sb.readLine();
 		String stringArray[] = s.split(" ");
-		float preaccx = 0;
-		float preaccy = 0;
-		float preaccz = 0;
-		long pretime = Integer.parseInt(stringArray[7]);
+		float preaccx =  Float.parseFloat(stringArray[0]);
+		float preaccy =  Float.parseFloat(stringArray[1]);
+		float preaccz = Float.parseFloat(stringArray[2]);
+		long pretime = Long.parseLong(stringArray[3]);
 		while ((s = sb.readLine()) != null) {
 			stringArray = s.split(" ");
 			int accTime = Integer.parseInt(stringArray[3]);
@@ -368,7 +369,7 @@ public class read_train extends Activity implements OnTouchListener {
 			float tmpRotationx = Float.parseFloat(stringArray[4]);
 			float tmpRotationy = Float.parseFloat(stringArray[5]);
 			float tmpRotationz = Float.parseFloat(stringArray[6]);
-
+			if(accTime !=pretime){
 			tmpaccx = (tmpaccx - preaccx) / (accTime - pretime) * rotationTime
 					+ (preaccx * accTime - tmpaccx * pretime)
 					/ (accTime - pretime);
@@ -378,6 +379,16 @@ public class read_train extends Activity implements OnTouchListener {
 			tmpaccz = (tmpaccz - preaccz) / (accTime - pretime) * rotationTime
 					+ (preaccz * accTime - tmpaccz * pretime)
 					/ (accTime - pretime);
+			}
+			else {
+				tmpaccx=preaccx;
+				tmpaccy=preaccy;
+				tmpaccz=preaccz;
+			}
+			preaccx=Float.parseFloat(stringArray[0]);
+			preaccy=Float.parseFloat(stringArray[1]);
+			preaccz=Float.parseFloat(stringArray[2]);
+			pretime=Long.parseLong(stringArray[3]);
 			float[][] bufferacc = {{tmpaccx, 0, 0}, {tmpaccy, 0, 0},
 					{tmpaccz, 0, 0}};// 前面三个是加速度
 			float[] rotationVect = {tmpRotationx, tmpRotationy, tmpRotationz};
@@ -393,13 +404,14 @@ public class read_train extends Activity implements OnTouchListener {
 			tmpaccy = rotationversion[1][0];
 			tmpaccz = rotationversion[2][0];
 
-			String sensorstr = tmpaccx + " " + tmpaccx + " " + tmpaccx + " "
+			String sensorstr = tmpaccx + " " + tmpaccy + " " + tmpaccz + " "
 					+ rotationTime + " " + stringArray[8] + " "
 					+ stringArray[9] + " " + stringArray[10] + " "
 					+ stringArray[11] + "\n";
 			byte[] buffer11 = new byte[sensorstr.length() * 2];
 			buffer11 = sensorstr.getBytes();
 			foStream.write(buffer11);
+
 		}
 		sb.close();
 		foStream.close();
@@ -411,6 +423,14 @@ public class read_train extends Activity implements OnTouchListener {
 			wc = 0;
 			vibrator.vibrate(200);
 			view.setBackgroundResource(R.drawable.button1);
+			try {
+				getChangedAcc();
+				new File(tmpString).delete();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
 			final Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage("确认输入？");
 			builder.setPositiveButton("确定",
@@ -420,8 +440,8 @@ public class read_train extends Activity implements OnTouchListener {
 							// TODO Auto-generated method stub
 							try {
 								FileInputStream Instream = new FileInputStream(
-										tmpString);
-								File sensortmp = new File(tmpString);
+										tmpStringOutput);
+								File sensortmp = new File(tmpStringOutput);
 								long length = sensortmp.length();
 								byte[] buffer = new byte[(int) (length * 2)];
 								Instream.read(buffer);
@@ -450,6 +470,7 @@ public class read_train extends Activity implements OnTouchListener {
 						public void onClick(DialogInterface dialog, int which) {
 							File sensor = new File(tmpString); // 获取文件对象
 							sensor.delete(); // 将文件删
+							new File(tmpStringOutput).delete();
 						}
 					});
 			builder.create().show();
@@ -487,7 +508,6 @@ public class read_train extends Activity implements OnTouchListener {
 			wc = 1;
 
 		}
-
 		return false;
 	}
 
