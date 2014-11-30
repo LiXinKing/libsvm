@@ -72,6 +72,8 @@ public class read_train extends Activity implements OnTouchListener {
 	private ImageView draw;
 	private String tmpString = "//sdcard/train/data/sensortestacc.tmp";
 	private String realString = "//sdcard/train/data/sensortestacc.txt";
+	
+	private String tmpStringOutput= "//sdcard/train/data/sensortestacc.tmp.out";
 
 	// 这里必须要化成7位数，否则比较会出错
 	// RandomAccessFile randomfile;
@@ -389,7 +391,12 @@ public class read_train extends Activity implements OnTouchListener {
 
 	public void  getChangedAcc() throws IOException {
 		BufferedReader sb=new BufferedReader(new FileReader(tmpString));
+		FileOutputStream foStream = new FileOutputStream(tmpStringOutput, true); // 定义传感器数据的输出流
 		String s=sb.readLine();//清楚第一个标量号
+		s=s+"\n";
+		byte[] buffer = new byte[s.length() * 2];
+		buffer = s.getBytes();
+		foStream.write(buffer);//读出后写回去
 		s=sb.readLine();
 		String stringArray[]=s.split(" ");
 		float preaccx=0;
@@ -400,8 +407,15 @@ public class read_train extends Activity implements OnTouchListener {
 			stringArray=s.split(" ");
 			int accTime=Integer.parseInt(stringArray[3]);
 			int rotationTime=Integer.parseInt(stringArray[7]);
-			        float[][] buffer = {{ Float.parseFloat(stringArray[0]), 0, 0},
-				{Float.parseFloat(stringArray[1]), 0, 0}, {Float.parseFloat(stringArray[2]), 0, 0}};//前面三个是加速度
+			float tmpaccx=Float.parseFloat(stringArray[0]);
+			float tmpaccy=Float.parseFloat(stringArray[1]); 
+			float tmpaccz=Float.parseFloat(stringArray[2]);
+			
+			tmpaccx=(tmpaccx-preaccx)/(accTime-pretime)*rotationTime+(preaccx*accTime-tmpaccx*pretime)/(accTime-pretime);
+			tmpaccy=(tmpaccy-preaccy)/(accTime-pretime)*rotationTime+(preaccy*accTime-tmpaccy*pretime)/(accTime-pretime);
+			tmpaccz=(tmpaccz-preaccz)/(accTime-pretime)*rotationTime+(preaccz*accTime-tmpaccz*pretime)/(accTime-pretime);
+			        float[][] bufferacc = {{ tmpaccx, 0, 0},
+				{tmpaccy, 0, 0}, {tmpaccz, 0, 0}};//前面三个是加速度
 		SensorManager.getRotationMatrixFromVector(mRotationMatrix,
 				rotation);
 		float[][] rotationversion = matrixinversion(mRotationMatrix);
@@ -412,11 +426,21 @@ public class read_train extends Activity implements OnTouchListener {
 						mRotationMatrix[5]},
 				{mRotationMatrix[6], mRotationMatrix[7],
 						mRotationMatrix[8]}};
-		rotationversion = maxtrixmutiply(mk, buffer);
+		rotationversion = maxtrixmutiply(mk, bufferacc);
 		accd[0] = rotationversion[0][0];
 		accd[1] = rotationversion[1][0];
 		accd[2] = rotationversion[2][0];
+
+			String sensorstr = accd[0] + " " + accd[1] + " "
+					+ accd[2] + " " + timeacc + " " + gyrd[0] + " "
+					+ gyrd[1] + " " + gyrd[2] + " " + timegyr
+					+ "\n";
+			byte[] buffer11 = new byte[sensorstr.length() * 2];
+			buffer11 = sensorstr.getBytes();
+			foStream.write(buffer11);
 		}
+		sb.close();
+		foStream.close();
 	}
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
