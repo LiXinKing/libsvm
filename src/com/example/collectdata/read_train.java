@@ -360,45 +360,6 @@ public class read_train extends Activity implements OnTouchListener {
 		vibrator.vibrate(200);
 	}
 
-	// 三阶行列式的计算
-	public static float getHL3(float[] input) {
-		float unm1 = input[0] * (input[4] * input[8] - input[5] * input[7]);
-		float unm2 = -input[1] * (input[3] * input[8] - input[5] * input[6]);
-		float unm3 = input[2] * (input[3] * input[7] - input[4] * input[6]);
-		return unm1 + unm2 + unm3;
-	}
-
-	private static float[][] matrixinversion(float[] input) {
-		// 求代数余子式
-		float[] buffer1 = new float[9];
-
-		for (int i = 0; i < input.length; i++) {
-			float[] buffer0 = input.clone();
-			if (i % 3 == 0) {
-				buffer0[i] = 1;
-				buffer0[i + 1] = 0;
-				buffer0[i + 2] = 0;
-			}
-			if (i % 3 == 1) {
-				buffer0[i - 1] = 0;
-				buffer0[i] = 1;
-				buffer0[i + 1] = 0;
-			}
-			if (i % 3 == 2) {
-				buffer0[i - 2] = 0;
-				buffer0[i - 1] = 0;
-				buffer0[i] = 1;
-			}
-			buffer1[i] = getHL3(buffer0) / getHL3(input);
-			if (i % 2 == 1)
-				buffer1[i] = -buffer1[i];
-		}
-		float[][] buffer = {{buffer1[0], buffer1[1], buffer1[2]},
-				{buffer1[3], buffer1[4], buffer1[5]},
-				{buffer1[6], buffer1[7], buffer1[8]}};
-		return buffer;
-	}
-
 	private static float[][] maxtrixmutiply(float[][] maxtrileft,
 			float[][] maxtriright) {
 		float[][] result = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
