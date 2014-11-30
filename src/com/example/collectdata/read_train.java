@@ -202,9 +202,10 @@ public class read_train extends Activity implements OnTouchListener {
 						FileOutputStream foStream = new FileOutputStream(
 								tmpString, true); // 定义传感器数据的输出流
 						String sensorstr = accd[0] + " " + accd[1] + " "
-								+ accd[2] + " " + timeacc +" "+rotation[0]+" "+rotation[1]+" "+rotation[2]+ " " +timerotation+" "+ gyrd[0] + " "
-								+ gyrd[1] + " " + gyrd[2] + " " + timegyr
-								+ "\n";
+								+ accd[2] + " " + timeacc + " " + rotation[0]
+								+ " " + rotation[1] + " " + rotation[2] + " "
+								+ timerotation + " " + gyrd[0] + " " + gyrd[1]
+								+ " " + gyrd[2] + " " + timegyr + "\n";
 						byte[] buffer11 = new byte[sensorstr.length() * 2];
 						buffer11 = sensorstr.getBytes();
 						foStream.write(buffer11);
@@ -224,7 +225,7 @@ public class read_train extends Activity implements OnTouchListener {
 				gyrd[1] = (float) values[1];
 				gyrd[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timegyr = time;
-				Log.v("1","a");
+				Log.v("1", "a");
 			}
 
 		}
@@ -284,7 +285,8 @@ public class read_train extends Activity implements OnTouchListener {
 			}
 			if (i != 1)
 				return;
-			positionArrayList = translatedata_train.getposition(AccArrayList,true);
+			positionArrayList = translatedata_train.getposition(AccArrayList,
+					true);
 		}
 		float[] x = positionArrayList.get(0);
 		float[] y = positionArrayList.get(1);
@@ -384,18 +386,22 @@ public class read_train extends Activity implements OnTouchListener {
 			}
 		return result;
 	}// 一个矩阵乘法
-	
-	
+
 	public void  getChangedAcc() throws IOException {
 		BufferedReader sb=new BufferedReader(new FileReader(tmpString));
-		String s=null;
-		int preaccx=0;
-		int pre
+		String s=sb.readLine();//清楚第一个标量号
+		s=sb.readLine();
+		String stringArray[]=s.split(" ");
+		float preaccx=0;
+		float preaccy=0;
+		float preaccz=0;
+		long pretime=Integer.parseInt(stringArray[7]);
 		while((s=sb.readLine())!=null){
-			String stringArray[]=s.split(" ");
-		
-		float[][] buffer = {{ Float.parseFloat(stringArray[0]), 0, 0},
-				{Float.parseFloat(stringArray[1]), 0, 0}, {Float.parseFloat(stringArray[2]), 0, 0}};
+			stringArray=s.split(" ");
+			int accTime=Integer.parseInt(stringArray[3]);
+			int rotationTime=Integer.parseInt(stringArray[7]);
+			        float[][] buffer = {{ Float.parseFloat(stringArray[0]), 0, 0},
+				{Float.parseFloat(stringArray[1]), 0, 0}, {Float.parseFloat(stringArray[2]), 0, 0}};//前面三个是加速度
 		SensorManager.getRotationMatrixFromVector(mRotationMatrix,
 				rotation);
 		float[][] rotationversion = matrixinversion(mRotationMatrix);
@@ -412,7 +418,6 @@ public class read_train extends Activity implements OnTouchListener {
 		accd[2] = rotationversion[2][0];
 		}
 	}
-
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
 		// TODO Auto-generated method stub
@@ -425,57 +430,43 @@ public class read_train extends Activity implements OnTouchListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-		
-		/*	view.setBackgroundResource(R.drawable.button1);
-			final Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("确认输入？");
 
-			builder.setPositiveButton("确定",
-					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-
-							// TODO Auto-generated method stub
-							try {
-
-								FileInputStream Instream = new FileInputStream(
-										tmpString);
-								File sensortmp = new File(tmpString);
-								long length = sensortmp.length();
-								byte[] buffer = new byte[(int) (length * 2)];
-								Instream.read(buffer);
-								Instream.close();
-								FileOutputStream Outstream = new FileOutputStream(
-										realString, true);
-								Outstream.write(buffer);
-								Outstream.close();
-								sensortmp.delete(); // 将文件删
-								do_num++;
-								TextView numdis = (TextView) findViewById(R.id.numdis);
-								numdis.setText(Integer.toString(do_num));
-
-							} catch (FileNotFoundException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} // 定义传感器数据的输出流
-							catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-
-					});
-			builder.setNegativeButton("取消",
-					new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							File sensor = new File(tmpString); // 获取文件对象
-							sensor.delete(); // 将文件删
-
-						}
-					});
-			builder.create().show();*/
+			/*
+			 * view.setBackgroundResource(R.drawable.button1); final Builder
+			 * builder = new AlertDialog.Builder(this);
+			 * builder.setMessage("确认输入？");
+			 * 
+			 * builder.setPositiveButton("确定", new
+			 * DialogInterface.OnClickListener() {
+			 * 
+			 * @Override public void onClick(DialogInterface dialog, int which)
+			 * {
+			 * 
+			 * // TODO Auto-generated method stub try {
+			 * 
+			 * FileInputStream Instream = new FileInputStream( tmpString); File
+			 * sensortmp = new File(tmpString); long length =
+			 * sensortmp.length(); byte[] buffer = new byte[(int) (length * 2)];
+			 * Instream.read(buffer); Instream.close(); FileOutputStream
+			 * Outstream = new FileOutputStream( realString, true);
+			 * Outstream.write(buffer); Outstream.close(); sensortmp.delete();
+			 * // 将文件删 do_num++; TextView numdis = (TextView)
+			 * findViewById(R.id.numdis);
+			 * numdis.setText(Integer.toString(do_num));
+			 * 
+			 * } catch (FileNotFoundException e) { // TODO Auto-generated catch
+			 * block e.printStackTrace(); } // 定义传感器数据的输出流 catch (IOException e)
+			 * { // TODO Auto-generated catch block e.printStackTrace(); } }
+			 * 
+			 * }); builder.setNegativeButton("取消", new
+			 * DialogInterface.OnClickListener() {
+			 * 
+			 * @Override public void onClick(DialogInterface dialog, int which)
+			 * { File sensor = new File(tmpString); // 获取文件对象 sensor.delete();
+			 * // 将文件删
+			 * 
+			 * } }); builder.create().show();
+			 */
 			/*
 			 * File sensor1=new File("//sdcard/sensortestacc.txt"); //获取文件对象\
 			 * lastbyte=sensor1.length();"//sdcard/sensortestacc.tmp"
