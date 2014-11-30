@@ -57,7 +57,7 @@ public class translatedata {
 		int measure = receiveString.length();
 		StringBuilder bufferbuild = new StringBuilder();
 		ArrayList<Float> floatbuffer = new ArrayList<Float>();
-		int m0 = 0;
+		
 		for (int i = 0, k = 0; i < measure; i++) {
 			char c = receiveString.charAt(i);
 			if ((c == 32)) {// 32的时候是空格将记的数据存入数组中
@@ -77,9 +77,6 @@ public class translatedata {
 				// 这里try和catch必须要用，否则会出现错误，用了之后不用改也有效果
 				// 可能是系统为了避免可能存在的错误
 			} else if (c == 10) {// 10的时候是换行
-				m0++;
-
-				Log.v("log", String.valueOf(m0));
 				String collect = bufferbuild.toString();
 				bufferbuild.delete(0, collect.length());
 				try {
