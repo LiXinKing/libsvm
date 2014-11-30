@@ -72,8 +72,8 @@ public class read_train extends Activity implements OnTouchListener {
 	private ImageView draw;
 	private String tmpString = "//sdcard/train/data/sensortestacc.tmp";
 	private String realString = "//sdcard/train/data/sensortestacc.txt";
-	
-	private String tmpStringOutput= "//sdcard/train/data/sensortestacc.tmp.out";
+
+	private String tmpStringOutput = "//sdcard/train/data/sensortestacc.tmp.out";
 
 	// 这里必须要化成7位数，否则比较会出错
 	// RandomAccessFile randomfile;
@@ -326,53 +326,7 @@ public class read_train extends Activity implements OnTouchListener {
 		sensor.delete(); // 将文件删
 		File sensortmp = new File(tmpString);
 		sensortmp.delete();
-		/*
-		 * File sensor1=new File("//sdcard/sensortestacc.txt"); //获取文件对象\
-		 * RandomAccessFile randomfile=new RandomAccessFile(sensor1,"rw");
-		 * randomfile.seek(bytenum-lastbyte);
-		 */
-		// randomfile.
-		// sensor1.delete(); //将文件删除
 		vibrator.vibrate(200);
-	}
-
-	// 三阶行列式的计算
-	public static float getHL3(float[] input) {
-		float unm1 = input[0] * (input[4] * input[8] - input[5] * input[7]);
-		float unm2 = -input[1] * (input[3] * input[8] - input[5] * input[6]);
-		float unm3 = input[2] * (input[3] * input[7] - input[4] * input[6]);
-		return unm1 + unm2 + unm3;
-	}
-
-	private static float[][] matrixinversion(float[] input) {
-		// 求代数余子式
-		float[] buffer1 = new float[9];
-
-		for (int i = 0; i < input.length; i++) {
-			float[] buffer0 = input.clone();
-			if (i % 3 == 0) {
-				buffer0[i] = 1;
-				buffer0[i + 1] = 0;
-				buffer0[i + 2] = 0;
-			}
-			if (i % 3 == 1) {
-				buffer0[i - 1] = 0;
-				buffer0[i] = 1;
-				buffer0[i + 1] = 0;
-			}
-			if (i % 3 == 2) {
-				buffer0[i - 2] = 0;
-				buffer0[i - 1] = 0;
-				buffer0[i] = 1;
-			}
-			buffer1[i] = getHL3(buffer0) / getHL3(input);
-			if (i % 2 == 1)
-				buffer1[i] = -buffer1[i];
-		}
-		float[][] buffer = {{buffer1[0], buffer1[1], buffer1[2]},
-				{buffer1[3], buffer1[4], buffer1[5]},
-				{buffer1[6], buffer1[7], buffer1[8]}};
-		return buffer;
 	}
 
 	private static float[][] maxtrixmutiply(float[][] maxtrileft,
@@ -389,52 +343,60 @@ public class read_train extends Activity implements OnTouchListener {
 		return result;
 	}// 一个矩阵乘法
 
-	public void  getChangedAcc() throws IOException {
-		BufferedReader sb=new BufferedReader(new FileReader(tmpString));
+	public void getChangedAcc() throws IOException {
+		BufferedReader sb = new BufferedReader(new FileReader(tmpString));
 		FileOutputStream foStream = new FileOutputStream(tmpStringOutput, true); // 定义传感器数据的输出流
-		String s=sb.readLine();//清楚第一个标量号
-		s=s+"\n";
+		String s = sb.readLine();// 清楚第一个标量号
+		s = s + "\n";
 		byte[] buffer = new byte[s.length() * 2];
 		buffer = s.getBytes();
-		foStream.write(buffer);//读出后写回去
-		s=sb.readLine();
-		String stringArray[]=s.split(" ");
-		float preaccx=0;
-		float preaccy=0;
-		float preaccz=0;
-		long pretime=Integer.parseInt(stringArray[7]);
-		while((s=sb.readLine())!=null){
-			stringArray=s.split(" ");
-			int accTime=Integer.parseInt(stringArray[3]);
-			int rotationTime=Integer.parseInt(stringArray[7]);
-			float tmpaccx=Float.parseFloat(stringArray[0]);
-			float tmpaccy=Float.parseFloat(stringArray[1]); 
-			float tmpaccz=Float.parseFloat(stringArray[2]);
-			
-			tmpaccx=(tmpaccx-preaccx)/(accTime-pretime)*rotationTime+(preaccx*accTime-tmpaccx*pretime)/(accTime-pretime);
-			tmpaccy=(tmpaccy-preaccy)/(accTime-pretime)*rotationTime+(preaccy*accTime-tmpaccy*pretime)/(accTime-pretime);
-			tmpaccz=(tmpaccz-preaccz)/(accTime-pretime)*rotationTime+(preaccz*accTime-tmpaccz*pretime)/(accTime-pretime);
-			        float[][] bufferacc = {{ tmpaccx, 0, 0},
-				{tmpaccy, 0, 0}, {tmpaccz, 0, 0}};//前面三个是加速度
-		SensorManager.getRotationMatrixFromVector(mRotationMatrix,
-				rotation);
-		float[][] rotationversion = matrixinversion(mRotationMatrix);
-		float[][] mk = {
-				{mRotationMatrix[0], mRotationMatrix[1],
-						mRotationMatrix[2]},
-				{mRotationMatrix[3], mRotationMatrix[4],
-						mRotationMatrix[5]},
-				{mRotationMatrix[6], mRotationMatrix[7],
-						mRotationMatrix[8]}};
-		rotationversion = maxtrixmutiply(mk, bufferacc);
-		accd[0] = rotationversion[0][0];
-		accd[1] = rotationversion[1][0];
-		accd[2] = rotationversion[2][0];
+		foStream.write(buffer);// 读出后写回去
+		s = sb.readLine();
+		String stringArray[] = s.split(" ");
+		float preaccx = 0;
+		float preaccy = 0;
+		float preaccz = 0;
+		long pretime = Integer.parseInt(stringArray[7]);
+		while ((s = sb.readLine()) != null) {
+			stringArray = s.split(" ");
+			int accTime = Integer.parseInt(stringArray[3]);
+			int rotationTime = Integer.parseInt(stringArray[7]);
+			float tmpaccx = Float.parseFloat(stringArray[0]);
+			float tmpaccy = Float.parseFloat(stringArray[1]);
+			float tmpaccz = Float.parseFloat(stringArray[2]);
 
-			String sensorstr = accd[0] + " " + accd[1] + " "
-					+ accd[2] + " " + timeacc + " " + gyrd[0] + " "
-					+ gyrd[1] + " " + gyrd[2] + " " + timegyr
-					+ "\n";
+			float tmpRotationx = Float.parseFloat(stringArray[4]);
+			float tmpRotationy = Float.parseFloat(stringArray[5]);
+			float tmpRotationz = Float.parseFloat(stringArray[6]);
+
+			tmpaccx = (tmpaccx - preaccx) / (accTime - pretime) * rotationTime
+					+ (preaccx * accTime - tmpaccx * pretime)
+					/ (accTime - pretime);
+			tmpaccy = (tmpaccy - preaccy) / (accTime - pretime) * rotationTime
+					+ (preaccy * accTime - tmpaccy * pretime)
+					/ (accTime - pretime);
+			tmpaccz = (tmpaccz - preaccz) / (accTime - pretime) * rotationTime
+					+ (preaccz * accTime - tmpaccz * pretime)
+					/ (accTime - pretime);
+			float[][] bufferacc = {{tmpaccx, 0, 0}, {tmpaccy, 0, 0},
+					{tmpaccz, 0, 0}};// 前面三个是加速度
+			float[] rotationVect = {tmpRotationx, tmpRotationy, tmpRotationz};
+			SensorManager.getRotationMatrixFromVector(mRotationMatrix,
+					rotationVect);
+			float[][] rotationversion = new float[3][];
+			float[][] mk = {
+					{mRotationMatrix[0], mRotationMatrix[1], mRotationMatrix[2]},
+					{mRotationMatrix[3], mRotationMatrix[4], mRotationMatrix[5]},
+					{mRotationMatrix[6], mRotationMatrix[7], mRotationMatrix[8]}};
+			rotationversion = maxtrixmutiply(mk, bufferacc);
+			tmpaccx = rotationversion[0][0];
+			tmpaccy = rotationversion[1][0];
+			tmpaccz = rotationversion[2][0];
+
+			String sensorstr = tmpaccx + " " + tmpaccx + " " + tmpaccx + " "
+					+ rotationTime + " " + stringArray[8] + " "
+					+ stringArray[9] + " " + stringArray[10] + " "
+					+ stringArray[11] + "\n";
 			byte[] buffer11 = new byte[sensorstr.length() * 2];
 			buffer11 = sensorstr.getBytes();
 			foStream.write(buffer11);
@@ -448,53 +410,52 @@ public class read_train extends Activity implements OnTouchListener {
 		if (event.getAction() == MotionEvent.ACTION_UP) {
 			wc = 0;
 			vibrator.vibrate(200);
-			try {
-				getChangedAcc();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
+			view.setBackgroundResource(R.drawable.button1);
+			final Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("确认输入？");
+			builder.setPositiveButton("确定",
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							try {
+								FileInputStream Instream = new FileInputStream(
+										tmpString);
+								File sensortmp = new File(tmpString);
+								long length = sensortmp.length();
+								byte[] buffer = new byte[(int) (length * 2)];
+								Instream.read(buffer);
+								Instream.close();
+								FileOutputStream Outstream = new FileOutputStream(
+										realString, true);
+								Outstream.write(buffer);
+								Outstream.close();
+								sensortmp.delete(); // 将文件删
+								do_num++;
+								TextView numdis = (TextView) findViewById(R.id.numdis);
+								numdis.setText(Integer.toString(do_num));
+							} catch (FileNotFoundException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} // 定义传感器数据的输出流
+							catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					});
+			builder.setNegativeButton("取消",
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							File sensor = new File(tmpString); // 获取文件对象
+							sensor.delete(); // 将文件删
+						}
+					});
+			builder.create().show();
 			/*
-			 * view.setBackgroundResource(R.drawable.button1); final Builder
-			 * builder = new AlertDialog.Builder(this);
-			 * builder.setMessage("确认输入？");
-			 * 
-			 * builder.setPositiveButton("确定", new
-			 * DialogInterface.OnClickListener() {
-			 * 
-			 * @Override public void onClick(DialogInterface dialog, int which)
-			 * {
-			 * 
-			 * // TODO Auto-generated method stub try {
-			 * 
-			 * FileInputStream Instream = new FileInputStream( tmpString); File
-			 * sensortmp = new File(tmpString); long length =
-			 * sensortmp.length(); byte[] buffer = new byte[(int) (length * 2)];
-			 * Instream.read(buffer); Instream.close(); FileOutputStream
-			 * Outstream = new FileOutputStream( realString, true);
-			 * Outstream.write(buffer); Outstream.close(); sensortmp.delete();
-			 * // 将文件删 do_num++; TextView numdis = (TextView)
-			 * findViewById(R.id.numdis);
-			 * numdis.setText(Integer.toString(do_num));
-			 * 
-			 * } catch (FileNotFoundException e) { // TODO Auto-generated catch
-			 * block e.printStackTrace(); } // 定义传感器数据的输出流 catch (IOException e)
-			 * { // TODO Auto-generated catch block e.printStackTrace(); } }
-			 * 
-			 * }); builder.setNegativeButton("取消", new
-			 * DialogInterface.OnClickListener() {
-			 * 
-			 * @Override public void onClick(DialogInterface dialog, int which)
-			 * { File sensor = new File(tmpString); // 获取文件对象 sensor.delete();
-			 * // 将文件删
-			 * 
-			 * } }); builder.create().show();
-			 */
-			/*
-			 * File sensor1=new File("//sdcard/sensortestacc.txt"); //获取文件对象\
-			 * lastbyte=sensor1.length();"//sdcard/sensortestacc.tmp"
-			 * bytenum+=sensor1.length();
+			 * try { getChangedAcc(); } catch (IOException e1) { // TODO
+			 * Auto-generated catch block e1.printStackTrace(); }
 			 */
 
 		} else if (event.getAction() == MotionEvent.ACTION_DOWN) {
