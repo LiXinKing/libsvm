@@ -10,6 +10,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import com.example.handledata.translatedata;
@@ -70,10 +72,12 @@ public class read_train extends Activity implements OnTouchListener {
 	private long bytenum = 0;
 	private long lastbyte;
 	private ImageView draw;
-	private String tmpString = "//sdcard/train/data/sensortestacc.tmp";
-	private String realString = "//sdcard/train/data/sensortestacc.txt";
+	private String tmpString = "//sdcard/train/data/sensortestacc.tmp";//最原始的数据
+	private String realString = "//sdcard/train/data/sensortestacc.txt";//
 
-	private String tmpStringOutput = "//sdcard/train/data/sensortestacc.tmp.out";
+	private String tmpStringOutput = "//sdcard/train/data/sensortestacc.tmp.out";//将加速度平均到时间带你的数据
+
+	private String backOutput = "//sdcard/train/data/";
 
 	// 这里必须要化成7位数，否则比较会出错
 	// RandomAccessFile randomfile;
@@ -269,7 +273,7 @@ public class read_train extends Activity implements OnTouchListener {
 		distance = Integer.parseInt(distanceEditText.getEditableText()
 				.toString());
 		ArrayList<float[]> positionArrayList = new ArrayList<float[]>();
-		{
+		try {
 			File file = new File("/sdcard/train/data/sensortestacc.txt");
 			if (file.length() == 0)
 				return;
@@ -289,6 +293,10 @@ public class read_train extends Activity implements OnTouchListener {
 				return;
 			positionArrayList = translatedata_train.getposition(AccArrayList,
 					true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			new File("/sdcard/train/PCA_train").delete();
 		}
 		float[] x = positionArrayList.get(0);
 		float[] y = positionArrayList.get(1);
@@ -314,22 +322,110 @@ public class read_train extends Activity implements OnTouchListener {
 				paint.setColor(Color.RED);
 		}
 		draw.setImageBitmap(bitmap);
-		new File("/sdcard/train/PCA_train").delete();
+
 	}
 
 	public void onClick_delete(View view) throws IOException // 按下清除后的动作
 	{
-		do_num = 0;
-		TextView numdis = (TextView) findViewById(R.id.numdis);
-		numdis.setText(Integer.toString(do_num));
-		File sensor = new File(realString); // 获取文件对象
-		sensor.delete(); // 将文件删
-		File sensortmp = new File(tmpString);
-		sensortmp.delete();
-		new File(tmpStringOutput).delete();
+		final TextView numdis = (TextView) findViewById(R.id.numdis);
+		final EditText numEditText = (EditText) findViewById(R.id.num);
+		final Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("是否存入数据");
+		builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				String backupPath = backOutput
+						+ numEditText.getText().toString();
+				String backupPathtmp = backOutput
+						+ numEditText.getText().toString()+".tmp";
+				Log.v("numEditText", numEditText.getText().toString());
+				File tmpbackupFile = new File(backupPath);
+				if (!tmpbackupFile.exists())
+					try {
+						tmpbackupFile.createNewFile();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				try {
+					InputStream is = new FileInputStream(tmpString);
+					OutputStream os = new FileOutputStream(backupPath, true);
+					int len = 0;
+					while ((len = is.read()) != -1) {
+						os.write(len);
+					}
+					is.close();
+					os.close();
+					is=new FileInputStream(tmpStringOutput);
+					os=new FileOutputStream(backupPathtmp,true);
+					len=0;
+					while((len=is.read())!=-1){
+						os.write(len);
+					}
+					is.close();
+					os.close();
+					do_num = 0;
+					numdis.setText(Integer.toString(do_num));
+					
+					start_train();//提取特征向量
+
+				} catch (Exception e) {
+					// TODO: handle exception
+					e.printStackTrace();
+				} finally {
+//					new File(realString).delete(); // 获取文件对象
+					new File(tmpString).delete();
+					new File(tmpStringOutput).delete();
+				}
+
+			}
+
+		});
+		builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				do_num = 0;
+				numdis.setText(Integer.toString(do_num));
+				new File(realString).delete(); // 获取文件对象
+				new File(tmpString).delete();
+				new File(tmpStringOutput).delete();
+			}
+		});
+		builder.create().show();
+
 		vibrator.vibrate(200);
 	}
+	//下面是从MainActivity中搬运来的一个train的函数来实现一键提取特征向量，和MainActivity的start_train的功能一样
+	private void start_train() throws IOException {
 
+		File trainFile = new File(realString);
+		if (!trainFile.exists() || (trainFile.length() == 0)) {
+			Toast.makeText(this, "read_train.java中，表示数据不存在", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		// new PCA_done(trainfile,"/sdcard/train/data/PCA_train");//PCA模块
+		// translatedata translatedata_train=new
+		// translatedata("/sdcard/train/data/PCA_train");
+		translatedata translatedata_train = new translatedata(realString);
+		translatedata_train.file_array();
+		/*
+		 * if(translatedata_train.floatcollectArray.size()>1000) {
+		 * toast("数据太长了，请重新输入"); return; }
+		 */
+		try {
+			translatedata_train.extract(true);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		} finally {
+			new File("/sdcard/train/data/PCA_train").delete();
+			new File(realString).delete();
+		}
+	}
+	
+	
 	private static float[][] maxtrixmutiply(float[][] maxtrileft,
 			float[][] maxtriright) {
 		float[][] result = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
@@ -354,8 +450,8 @@ public class read_train extends Activity implements OnTouchListener {
 		foStream.write(buffer);// 读出后写回去
 		s = sb.readLine();
 		String stringArray[] = s.split(" ");
-		float preaccx =  Float.parseFloat(stringArray[0]);
-		float preaccy =  Float.parseFloat(stringArray[1]);
+		float preaccx = Float.parseFloat(stringArray[0]);
+		float preaccy = Float.parseFloat(stringArray[1]);
 		float preaccz = Float.parseFloat(stringArray[2]);
 		long pretime = Long.parseLong(stringArray[3]);
 		while ((s = sb.readLine()) != null) {
@@ -369,26 +465,28 @@ public class read_train extends Activity implements OnTouchListener {
 			float tmpRotationx = Float.parseFloat(stringArray[4]);
 			float tmpRotationy = Float.parseFloat(stringArray[5]);
 			float tmpRotationz = Float.parseFloat(stringArray[6]);
-			if(accTime !=pretime){
-			tmpaccx = (tmpaccx - preaccx) / (accTime - pretime) * rotationTime
-					+ (preaccx * accTime - tmpaccx * pretime)
-					/ (accTime - pretime);
-			tmpaccy = (tmpaccy - preaccy) / (accTime - pretime) * rotationTime
-					+ (preaccy * accTime - tmpaccy * pretime)
-					/ (accTime - pretime);
-			tmpaccz = (tmpaccz - preaccz) / (accTime - pretime) * rotationTime
-					+ (preaccz * accTime - tmpaccz * pretime)
-					/ (accTime - pretime);
+			if (accTime != pretime) {
+				tmpaccx = (tmpaccx - preaccx) / (accTime - pretime)
+						* rotationTime
+						+ (preaccx * accTime - tmpaccx * pretime)
+						/ (accTime - pretime);
+				tmpaccy = (tmpaccy - preaccy) / (accTime - pretime)
+						* rotationTime
+						+ (preaccy * accTime - tmpaccy * pretime)
+						/ (accTime - pretime);
+				tmpaccz = (tmpaccz - preaccz) / (accTime - pretime)
+						* rotationTime
+						+ (preaccz * accTime - tmpaccz * pretime)
+						/ (accTime - pretime);
+			} else {
+				tmpaccx = preaccx;
+				tmpaccy = preaccy;
+				tmpaccz = preaccz;
 			}
-			else {
-				tmpaccx=preaccx;
-				tmpaccy=preaccy;
-				tmpaccz=preaccz;
-			}
-			preaccx=Float.parseFloat(stringArray[0]);
-			preaccy=Float.parseFloat(stringArray[1]);
-			preaccz=Float.parseFloat(stringArray[2]);
-			pretime=Long.parseLong(stringArray[3]);
+			preaccx = Float.parseFloat(stringArray[0]);
+			preaccy = Float.parseFloat(stringArray[1]);
+			preaccz = Float.parseFloat(stringArray[2]);
+			pretime = Long.parseLong(stringArray[3]);
 			float[][] bufferacc = {{tmpaccx, 0, 0}, {tmpaccy, 0, 0},
 					{tmpaccz, 0, 0}};// 前面三个是加速度
 			float[] rotationVect = {tmpRotationx, tmpRotationy, tmpRotationz};
@@ -423,14 +521,7 @@ public class read_train extends Activity implements OnTouchListener {
 			wc = 0;
 			vibrator.vibrate(200);
 			view.setBackgroundResource(R.drawable.button1);
-			try {
-				getChangedAcc();
-				new File(tmpString).delete();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
+
 			final Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage("确认输入？");
 			builder.setPositiveButton("确定",
@@ -439,6 +530,13 @@ public class read_train extends Activity implements OnTouchListener {
 						public void onClick(DialogInterface dialog, int which) {
 							// TODO Auto-generated method stub
 							try {
+								try {
+									getChangedAcc();
+									// new File(tmpString).delete();
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
 								FileInputStream Instream = new FileInputStream(
 										tmpStringOutput);
 								File sensortmp = new File(tmpStringOutput);
@@ -450,7 +548,7 @@ public class read_train extends Activity implements OnTouchListener {
 										realString, true);
 								Outstream.write(buffer);
 								Outstream.close();
-								sensortmp.delete(); // 将文件删
+								// sensortmp.delete(); // 将文件删
 								do_num++;
 								TextView numdis = (TextView) findViewById(R.id.numdis);
 								numdis.setText(Integer.toString(do_num));

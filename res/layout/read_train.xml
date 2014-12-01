@@ -104,6 +104,7 @@
             android:onClick="onClick_delete"
             android:text="onClick_delete"
             android:textSize="8dip" />
-    </LinearLayout>
 
+
+    </LinearLayout>
 </LinearLayout>

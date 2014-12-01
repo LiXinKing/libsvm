@@ -109,35 +109,38 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 
-		case R.id.btOpenFile:
-			Log.v("111", "ok0");
-			if (Environment.getExternalStorageState().equals(
-					Environment.MEDIA_MOUNTED))
-				startActivityForResult(fileChooserIntent, REQUEST_CODE_train);
-			else
-				toast(getText(R.string.sdcard_unmonted_hint));
-			break;
-		case R.id.btpredict:
-			Log.v("111", "ok1");
-			if (Environment.getExternalStorageState().equals(
-					Environment.MEDIA_MOUNTED))
-				startActivityForResult(fileChooserIntent, REQUEST_CODE_predict);
-			else
-				toast(getText(R.string.sdcard_unmonted_hint));
+			case R.id.btOpenFile :
+				Log.v("111", "ok0");
+				if (Environment.getExternalStorageState().equals(
+						Environment.MEDIA_MOUNTED))
+					startActivityForResult(fileChooserIntent,
+							REQUEST_CODE_train);
+				else
+					toast(getText(R.string.sdcard_unmonted_hint));
+				break;
+			case R.id.btpredict :
+				Log.v("111", "ok1");
+				if (Environment.getExternalStorageState().equals(
+						Environment.MEDIA_MOUNTED))
+					startActivityForResult(fileChooserIntent,
+							REQUEST_CODE_predict);
+				else
+					toast(getText(R.string.sdcard_unmonted_hint));
 
-			break;
-		case R.id.btmodel:
-			Log.v("111", "ok2");
-			if (Environment.getExternalStorageState().equals(
-					Environment.MEDIA_MOUNTED))
-				startActivityForResult(fileChooserIntent, REQUEST_CODE_model);
-			else
-				toast(getText(R.string.sdcard_unmonted_hint));
+				break;
+			case R.id.btmodel :
+				Log.v("111", "ok2");
+				if (Environment.getExternalStorageState().equals(
+						Environment.MEDIA_MOUNTED))
+					startActivityForResult(fileChooserIntent,
+							REQUEST_CODE_model);
+				else
+					toast(getText(R.string.sdcard_unmonted_hint));
 
-			break;
-		default:
-			Log.v("111", "ok3");
-			break;
+				break;
+			default :
+				Log.v("111", "ok3");
+				break;
 		}
 	}
 
@@ -152,7 +155,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		c = nametxt.lastIndexOf(".");
 		String name = nametxt.substring(0, c).concat("_out.txt");
 		String path_out = path_train.replaceAll(nametxt, name);
-		String[] arg = { path_train, path_out };
+		String[] arg = {path_train, path_out};
 		try {
 			svm_train.main(arg);
 		} catch (IOException e) {
@@ -176,7 +179,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		c = nametxt.lastIndexOf(".");
 		String name = nametxt.substring(0, c).concat("_pd.txt");
 		String path_pd = path_predict.replaceAll(nametxt, name);
-		String[] arg = { path_predict, path_model, path_pd };
+		String[] arg = {path_predict, path_model, path_pd};
 		try {
 			svm_predict.main(arg);
 		} catch (IOException e) {
@@ -250,7 +253,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		c = nametxt.lastIndexOf(".");
 		String name = nametxt.substring(0, c).concat("_pd.txt");
 		String path_pd = path_predict.replaceAll(nametxt, name);
-		String[] arg = { path_predict, path_model, path_pd };
+		String[] arg = {path_predict, path_model, path_pd};
 		try {
 			svm_predict.main(arg);
 		} catch (IOException e) {
@@ -276,9 +279,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		 * if(translatedata_train.floatcollectArray.size()>1000) {
 		 * toast("数据太长了，请重新输入"); return; }
 		 */
-		translatedata_train.extract(true);
-		new File("/sdcard/train/data/PCA_train").delete();
-		new File(trainfile).delete();
+		try {
+			translatedata_train.extract(true);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		} finally {
+			new File("/sdcard/train/data/PCA_train").delete();
+			new File(trainfile).delete();
+		}
 	}
 
 	public void pre_result(View view) throws IOException {
