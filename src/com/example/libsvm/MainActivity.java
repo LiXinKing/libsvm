@@ -270,10 +270,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			toast("训练的数据不存在");
 			return;
 		}
-		// new PCA_done(trainfile,"/sdcard/train/data/PCA_train");//PCA模块
-		// translatedata translatedata_train=new
-		// translatedata("/sdcard/train/data/PCA_train");
-		translatedata translatedata_train = new translatedata(trainfile);
+		 new PCA_done(trainfile,"/sdcard/train/data/PCA_train");//PCA模块
+		 translatedata translatedata_train=new
+		 translatedata("/sdcard/train/data/PCA_train");
+//		translatedata translatedata_train = new translatedata(trainfile);
 		translatedata_train.file_array();
 		/*
 		 * if(translatedata_train.floatcollectArray.size()>1000) {
