@@ -26,6 +26,7 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Bitmap.Config;
 import android.hardware.Sensor;
@@ -55,17 +56,22 @@ public class read_train extends Activity implements OnTouchListener {
 	private Sensor myaccelerometer; // 加速度传感器（包括重力）
 	private Sensor myrotationSensor;
 	private Sensor mygyrSensor;
+	private Sensor mygraSensor;
+	private Sensor mymangSensor;
 	private Button writebu;
 	private float gyrd[]; // 用于存放最新的陀螺仪数据
 	private float accd[]; // 用于存放最新的加速度传感器数据
 	private float accdtest[]; // 用于存放最新的加速度传感器数据
 	private float gravity[];
 	private float rotation[];
+	private float mang[];
 	private float[] mRotationMatrix = new float[9];
 	private long time;
 	private long timeacc;
 	private long timerotation;
 	private long timegyr;
+	private long timegra;
+	private long timemang;
 	private Vibrator vibrator; // 震动
 	private int labelnum;
 	private int do_num = 0;
@@ -97,15 +103,19 @@ public class read_train extends Activity implements OnTouchListener {
 		accdtest = new float[3];
 		gravity = new float[3];
 		rotation = new float[3];
+		mang = new float[3];
 		wc = 0; // 默认开启传感器数据记录，控制标记为1
 		// 获得SensorManager对象
 		mySensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		// 获取缺省的线性加速度传感器
 		myaccelerometer = mySensorManager
-				.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		myrotationSensor = mySensorManager
 				.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 		mygyrSensor = mySensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+		mygraSensor = mySensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+		mymangSensor = mySensorManager
+				.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 		File sensorFile = new File(realString);
 		File sensortmp = new File(tmpString);
 
@@ -155,6 +165,14 @@ public class read_train extends Activity implements OnTouchListener {
 				mygyrSensor, // 传感器类型
 				SensorManager.SENSOR_DELAY_FASTEST // 传感器事件传递的频度
 				);
+		mySensorManager.registerListener(mySensorListener, // 添加监听
+				mygraSensor, // 传感器类型
+				SensorManager.SENSOR_DELAY_FASTEST // 传感器事件传递的频度
+				);
+		mySensorManager.registerListener(mySensorListener, // 添加监听
+				mymangSensor, // 传感器类型
+				SensorManager.SENSOR_DELAY_FASTEST // 传感器事件传递的频度
+				);
 	}
 
 	@Override
@@ -194,7 +212,7 @@ public class read_train extends Activity implements OnTouchListener {
 			float offset = (float) Math.sqrt(values[0] * values[0] + values[1]
 					* values[1] + values[2] * values[2]);
 			// 陀螺仪传感器变化
-			if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+			if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 				Log.v("Sensor.TYPE_LINEAR_ACCELERATION",
 						event.sensor.getMinDelay() + "");
 				// 小于ACCMIN时属于误差范围
@@ -205,40 +223,55 @@ public class read_train extends Activity implements OnTouchListener {
 				accdtest[1] = accd[1];
 				accdtest[2] = accd[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timeacc = time;
-			}
-
-			else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-				Log.v("Sensor.TYPE_ROTATION_VECTOR", event.sensor.getMinDelay()
-						+ "");
-				rotation[0] = (float) values[0];
-				rotation[1] = (float) values[1];
-				rotation[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
-				timerotation = time;
-				if (wc == 1) {
-					try {
-
-						FileOutputStream foStream = new FileOutputStream(
-								tmpString, true); // 定义传感器数据的输出流
-						String sensorstr = accd[0] + " " + accd[1] + " "
-								+ accd[2] + " " + timeacc + " " + rotation[0]
-								+ " " + rotation[1] + " " + rotation[2] + " "
-								+ timerotation + " " + gyrd[0] + " " + gyrd[1]
-								+ " " + gyrd[2] + " " + timegyr + "\n";
-						byte[] buffer11 = new byte[sensorstr.length() * 2];
-						buffer11 = sensorstr.getBytes();
-						foStream.write(buffer11);
-						foStream.close();
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						Log.v("FileNotFoundException", "OK");
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+			} else if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
+				Log.v("Sensor.TYPE_GRAVITY", event.sensor.getMinDelay() + "");
+				// 小于ACCMIN时属于误差范围
+				gravity[0] = values[0];
+				gravity[1] = values[1];
+				gravity[2] = values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
+				timegra = time;
+			} else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+//				Log.v("Sensor.TYPE_MAGNETIC_FIELD", event.sensor.getMinDelay()
+//						+ "");
+				// 小于ACCMIN时属于误差范围
+				mang[0] = values[0];
+				mang[1] = values[1];
+				mang[2] = values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
+				timemang = time;
+				if (timemang - timegra < 5) {
+					float[][] R = new float[3][3];
+					float[][] result = new float[3][3];
+					float[][] acctmp = {{accd[0], 0, 0}, {accd[1], 0, 0},
+							{accd[2], 0, 0}};
+					accTranslation(R, gravity, mang);
+					result = maxtrixmutiply(R, acctmp);
+					Log.v("mangOutput", "x:" + result[0][0] + " " + "y:"
+							+ result[1][0] + " " + "z:" + result[2][0]+"time: "+timemang);
 				}
 
-			} else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+			}
+
+			/*
+			 * else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+			 * Log.v("Sensor.TYPE_ROTATION_VECTOR", event.sensor.getMinDelay() +
+			 * ""); rotation[0] = (float) values[0]; rotation[1] = (float)
+			 * values[1]; rotation[2] = (float) values[2]; //
+			 * 将最新的加速度传感器数据存在加速度传感器数组中 timerotation = time; if (wc == 1) { try {
+			 * 
+			 * FileOutputStream foStream = new FileOutputStream( tmpString,
+			 * true); // 定义传感器数据的输出流 String sensorstr = accd[0] + " " + accd[1]
+			 * + " " + accd[2] + " " + timeacc + " " + rotation[0] + " " +
+			 * rotation[1] + " " + rotation[2] + " " + timerotation + " " +
+			 * gyrd[0] + " " + gyrd[1] + " " + gyrd[2] + " " + timegyr + "\n";
+			 * byte[] buffer11 = new byte[sensorstr.length() * 2]; buffer11 =
+			 * sensorstr.getBytes(); foStream.write(buffer11); foStream.close();
+			 * } catch (FileNotFoundException e) { // TODO Auto-generated catch
+			 * block Log.v("FileNotFoundException", "OK"); e.printStackTrace();
+			 * } catch (IOException e) { // TODO Auto-generated catch block
+			 * e.printStackTrace(); } }
+			 * 
+			 * }
+			 */else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
 				Log.v("Sensor.TYPE_GYROSCOPE", event.sensor.getMinDelay() + "");
 				gyrd[0] = (float) values[0];
 				gyrd[1] = (float) values[1];
@@ -250,6 +283,43 @@ public class read_train extends Activity implements OnTouchListener {
 		}
 
 	};
+
+	public void accTranslation(float[][] R, float[] gravity, float[] geomagnetic) {
+		float Ax = gravity[0];
+		float Ay = gravity[1];
+		float Az = gravity[2];
+		final float Ex = geomagnetic[0];
+		final float Ey = geomagnetic[1];
+		final float Ez = geomagnetic[2];
+		float Hx = Ey * Az - Ez * Ay;
+		float Hy = Ez * Ax - Ex * Az;
+		float Hz = Ex * Ay - Ey * Ax;
+		final float normH = (float) Math.sqrt(Hx * Hx + Hy * Hy + Hz * Hz);
+		final float invH = 1.0f / normH;
+		Hx *= invH;
+		Hy *= invH;
+		Hz *= invH;
+		final float invA = 1.0f / (float) Math
+				.sqrt(Ax * Ax + Ay * Ay + Az * Az);
+		Ax *= invA;
+		Ay *= invA;
+		Az *= invA;
+		final float Mx = Ay * Hz - Az * Hy;
+		final float My = Az * Hx - Ax * Hz;
+		final float Mz = Ax * Hy - Ay * Hx;
+		if (R != null) {
+			R[0][0] = Hx;
+			R[0][1] = Hy;
+			R[0][2] = Hz;
+			R[1][0] = Mx;
+			R[1][1] = My;
+			R[1][2] = Mz;
+			R[2][0] = Ax;
+			R[2][1] = Ay;
+			R[2][2] = Az;
+		}
+		return;
+	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent e) {
