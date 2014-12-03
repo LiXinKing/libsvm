@@ -230,23 +230,23 @@ public class read_train extends Activity implements OnTouchListener {
 				gravity[1] = values[1];
 				gravity[2] = values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timegra = time;
+				Log.v("TYPE_GRAVITY_timegra", timegra+"");
 			} else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-//				Log.v("Sensor.TYPE_MAGNETIC_FIELD", event.sensor.getMinDelay()
-//						+ "");
 				// 小于ACCMIN时属于误差范围
 				mang[0] = values[0];
 				mang[1] = values[1];
 				mang[2] = values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timemang = time;
-				if (timemang - timegra < 5) {
+				if (timemang - timegra < 8) {
 					float[][] R = new float[3][3];
 					float[][] result = new float[3][3];
-					float[][] acctmp = {{accd[0], 0, 0}, {accd[1], 0, 0},
-							{accd[2], 0, 0}};
+					float[][] acctmp = { { accd[0], 0, 0 }, { accd[1], 0, 0 },
+							{ accd[2], 0, 0 } };
 					accTranslation(R, gravity, mang);
 					result = maxtrixmutiply(R, acctmp);
 					Log.v("mangOutput", "x:" + result[0][0] + " " + "y:"
-							+ result[1][0] + " " + "z:" + result[2][0]+"time: "+timemang);
+							+ result[1][0] + " " + "z:" + result[2][0]
+							+ "time: " + timemang);
 				}
 
 			}
@@ -277,7 +277,7 @@ public class read_train extends Activity implements OnTouchListener {
 				gyrd[1] = (float) values[1];
 				gyrd[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timegyr = time;
-				Log.v("1", "a");
+				Log.v("TYPE_GYROSCOPE_timegyr", timegyr+"");
 			}
 
 		}
@@ -324,9 +324,9 @@ public class read_train extends Activity implements OnTouchListener {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent e) {
 		switch (keyCode) {
-			case 4 :
-				System.exit(0);
-				break;
+		case 4:
+			System.exit(0);
+			break;
 		}
 		return true;
 	}
@@ -480,6 +480,7 @@ public class read_train extends Activity implements OnTouchListener {
 
 		vibrator.vibrate(200);
 	}
+
 	// 下面是从MainActivity中搬运来的一个train的函数来实现一键提取特征向量，和MainActivity的start_train的功能一样
 	private void start_train() throws IOException {
 
@@ -511,7 +512,7 @@ public class read_train extends Activity implements OnTouchListener {
 
 	private static float[][] maxtrixmutiply(float[][] maxtrileft,
 			float[][] maxtriright) {
-		float[][] result = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+		float[][] result = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
 		// TODO Auto-generated method stub
 
 		for (int i = 0; i < maxtrileft.length; i++)
@@ -570,16 +571,19 @@ public class read_train extends Activity implements OnTouchListener {
 			preaccy = Float.parseFloat(stringArray[1]);
 			preaccz = Float.parseFloat(stringArray[2]);
 			pretime = Long.parseLong(stringArray[3]);
-			float[][] bufferacc = {{tmpaccx, 0, 0}, {tmpaccy, 0, 0},
-					{tmpaccz, 0, 0}};// 前面三个是加速度
-			float[] rotationVect = {tmpRotationx, tmpRotationy, tmpRotationz};
+			float[][] bufferacc = { { tmpaccx, 0, 0 }, { tmpaccy, 0, 0 },
+					{ tmpaccz, 0, 0 } };// 前面三个是加速度
+			float[] rotationVect = { tmpRotationx, tmpRotationy, tmpRotationz };
 			SensorManager.getRotationMatrixFromVector(mRotationMatrix,
 					rotationVect);
 			float[][] rotationversion = new float[3][];
 			float[][] mk = {
-					{mRotationMatrix[0], mRotationMatrix[1], mRotationMatrix[2]},
-					{mRotationMatrix[3], mRotationMatrix[4], mRotationMatrix[5]},
-					{mRotationMatrix[6], mRotationMatrix[7], mRotationMatrix[8]}};
+					{ mRotationMatrix[0], mRotationMatrix[1],
+							mRotationMatrix[2] },
+					{ mRotationMatrix[3], mRotationMatrix[4],
+							mRotationMatrix[5] },
+					{ mRotationMatrix[6], mRotationMatrix[7],
+							mRotationMatrix[8] } };
 			rotationversion = maxtrixmutiply(mk, bufferacc);
 			tmpaccx = rotationversion[0][0];
 			tmpaccy = rotationversion[1][0];
@@ -597,6 +601,7 @@ public class read_train extends Activity implements OnTouchListener {
 		sb.close();
 		foStream.close();
 	}
+
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
 		if (new File(realString).exists()) {
