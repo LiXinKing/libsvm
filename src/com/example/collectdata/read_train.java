@@ -72,10 +72,10 @@ public class read_train extends Activity implements OnTouchListener {
 	private long bytenum = 0;
 	private long lastbyte;
 	private ImageView draw;
-	private String tmpString = "//sdcard/train/data/sensortestacc.tmp";//最原始的数据
+	private String tmpString = "//sdcard/train/data/sensortestacc.tmp";// 最原始的数据
 	private String realString = "//sdcard/train/data/sensortestacc.txt";//
 
-	private String tmpStringOutput = "//sdcard/train/data/sensortestacc.tmp.out";//将加速度平均到时间带你的数据
+	private String tmpStringOutput = "//sdcard/train/data/sensortestacc.tmp.out";// 将加速度平均到时间带你的数据
 
 	private String backOutput = "//sdcard/train/data/";
 
@@ -173,6 +173,14 @@ public class read_train extends Activity implements OnTouchListener {
 	private SensorEventListener mySensorListener = new SensorEventListener() {// 开发实现了SensorEventListener接口的传感器监听器
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			// Log.v("accuracy1",sensor.getType()+"");
+			// Log.v("accuracy2",accuracy+"");
+			// Log.v("accuracy1", SensorManager.SENSOR_STATUS_ACCURACY_HIGH+"");
+			// Log.v("accuracy2", SensorManager.SENSOR_STATUS_ACCURACY_LOW+"");
+			// Log.v("accuracy3",
+			// SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM+"");
+			// Log.v("accuracy4", SensorManager.SENSOR_STATUS_UNRELIABLE+"");
+
 		}
 
 		@Override
@@ -187,6 +195,8 @@ public class read_train extends Activity implements OnTouchListener {
 					* values[1] + values[2] * values[2]);
 			// 陀螺仪传感器变化
 			if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+				Log.v("Sensor.TYPE_LINEAR_ACCELERATION",
+						event.sensor.getMinDelay() + "");
 				// 小于ACCMIN时属于误差范围
 				accd[0] = values[0];
 				accd[1] = values[1];
@@ -198,6 +208,8 @@ public class read_train extends Activity implements OnTouchListener {
 			}
 
 			else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+				Log.v("Sensor.TYPE_ROTATION_VECTOR", event.sensor.getMinDelay()
+						+ "");
 				rotation[0] = (float) values[0];
 				rotation[1] = (float) values[1];
 				rotation[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
@@ -227,6 +239,7 @@ public class read_train extends Activity implements OnTouchListener {
 				}
 
 			} else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+				Log.v("Sensor.TYPE_GYROSCOPE", event.sensor.getMinDelay() + "");
 				gyrd[0] = (float) values[0];
 				gyrd[1] = (float) values[1];
 				gyrd[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
@@ -339,7 +352,7 @@ public class read_train extends Activity implements OnTouchListener {
 				String backupPath = backOutput
 						+ numEditText.getText().toString();
 				String backupPathtmp = backOutput
-						+ numEditText.getText().toString()+".tmp";
+						+ numEditText.getText().toString() + ".tmp";
 				Log.v("numEditText", numEditText.getText().toString());
 				File tmpbackupFile = new File(backupPath);
 				if (!tmpbackupFile.exists())
@@ -358,24 +371,24 @@ public class read_train extends Activity implements OnTouchListener {
 					}
 					is.close();
 					os.close();
-					is=new FileInputStream(tmpStringOutput);
-					os=new FileOutputStream(backupPathtmp,true);
-					len=0;
-					while((len=is.read())!=-1){
+					is = new FileInputStream(tmpStringOutput);
+					os = new FileOutputStream(backupPathtmp, true);
+					len = 0;
+					while ((len = is.read()) != -1) {
 						os.write(len);
 					}
 					is.close();
 					os.close();
 					do_num = 0;
 					numdis.setText(Integer.toString(do_num));
-					
-					start_train();//提取特征向量
+
+					start_train();// 提取特征向量
 
 				} catch (Exception e) {
 					// TODO: handle exception
 					e.printStackTrace();
 				} finally {
-//					new File(realString).delete(); // 获取文件对象
+					// new File(realString).delete(); // 获取文件对象
 					new File(tmpString).delete();
 					new File(tmpStringOutput).delete();
 				}
@@ -397,12 +410,13 @@ public class read_train extends Activity implements OnTouchListener {
 
 		vibrator.vibrate(200);
 	}
-	//下面是从MainActivity中搬运来的一个train的函数来实现一键提取特征向量，和MainActivity的start_train的功能一样
+	// 下面是从MainActivity中搬运来的一个train的函数来实现一键提取特征向量，和MainActivity的start_train的功能一样
 	private void start_train() throws IOException {
 
 		File trainFile = new File(realString);
 		if (!trainFile.exists() || (trainFile.length() == 0)) {
-			Toast.makeText(this, "read_train.java中，表示数据不存在", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "read_train.java中，表示数据不存在", Toast.LENGTH_SHORT)
+					.show();
 			return;
 		}
 		// new PCA_done(trainfile,"/sdcard/train/data/PCA_train");//PCA模块
@@ -424,8 +438,7 @@ public class read_train extends Activity implements OnTouchListener {
 			new File(realString).delete();
 		}
 	}
-	
-	
+
 	private static float[][] maxtrixmutiply(float[][] maxtrileft,
 			float[][] maxtriright) {
 		float[][] result = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
@@ -516,6 +529,10 @@ public class read_train extends Activity implements OnTouchListener {
 	}
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
+		if (new File(realString).exists()) {
+			Toast.makeText(this, "请先将已经生成的数据加入", Toast.LENGTH_SHORT);
+			return false;
+		}
 		// TODO Auto-generated method stub
 		if (event.getAction() == MotionEvent.ACTION_UP) {
 			wc = 0;
@@ -578,6 +595,7 @@ public class read_train extends Activity implements OnTouchListener {
 			 */
 
 		} else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
 			EditText numEditText = (EditText) findViewById(R.id.num);
 			if (numEditText.getEditableText().toString().equals("")) {
 				Toast.makeText(this, "label wrong!", Toast.LENGTH_LONG).show();
