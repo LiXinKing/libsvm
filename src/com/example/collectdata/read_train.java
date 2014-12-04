@@ -85,6 +85,11 @@ public class read_train extends Activity implements OnTouchListener {
 
 	private String backOutput = "//sdcard/train/data/";
 
+	private String Stringgry = "//sdcard/train/data/gry";
+	private String Stringgra = "//sdcard/train/data/gra";
+	private String Stringacc = "//sdcard/train/data/acc";
+	private String Stringmag = "//sdcard/train/data/mag";
+	private String Stringrotation = "//sdcard/train/data/rot";
 	// 这里必须要化成7位数，否则比较会出错
 	// RandomAccessFile randomfile;
 
@@ -209,75 +214,117 @@ public class read_train extends Activity implements OnTouchListener {
 			long time = System.currentTimeMillis();
 			time = time - time / 10000000 * 10000000;
 			float[] values = event.values;// 获取传感器的三个数据
-			float offset = (float) Math.sqrt(values[0] * values[0] + values[1]
-					* values[1] + values[2] * values[2]);
 			// 陀螺仪传感器变化
 			if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-				Log.v("Sensor.TYPE_LINEAR_ACCELERATION",
-						event.sensor.getMinDelay() + "");
 				// 小于ACCMIN时属于误差范围
 				accd[0] = values[0];
 				accd[1] = values[1];
 				accd[2] = values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
-				accdtest[0] = accd[0];
-				accdtest[1] = accd[1];
-				accdtest[2] = accd[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timeacc = time;
+				try {
+					FileOutputStream foStream = new FileOutputStream(Stringacc,
+							true); // 定义传感器数据的输出流
+					String sensorstr = accd[0] + " " + accd[1] + " " + accd[2]
+							+ " " + timeacc + "\n";
+					byte[] buffer11 = new byte[sensorstr.length() * 2];
+					buffer11 = sensorstr.getBytes();
+					foStream.write(buffer11);
+					foStream.close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 			} else if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
-				Log.v("Sensor.TYPE_GRAVITY", event.sensor.getMinDelay() + "");
 				// 小于ACCMIN时属于误差范围
 				gravity[0] = values[0];
 				gravity[1] = values[1];
 				gravity[2] = values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timegra = time;
-				Log.v("TYPE_GRAVITY_timegra", timegra+"");
+				try {
+					FileOutputStream foStream = new FileOutputStream(Stringgra,
+							true); // 定义传感器数据的输出流
+					String sensorstr = gravity[0] + " " + gravity[1] + " "
+							+ gravity[2] + " " + timegra + "\n";
+					byte[] buffer11 = new byte[sensorstr.length() * 2];
+					buffer11 = sensorstr.getBytes();
+					foStream.write(buffer11);
+					foStream.close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
 				// 小于ACCMIN时属于误差范围
 				mang[0] = values[0];
 				mang[1] = values[1];
 				mang[2] = values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timemang = time;
-				if (timemang - timegra < 8) {
-					float[][] R = new float[3][3];
-					float[][] result = new float[3][3];
-					float[][] acctmp = { { accd[0], 0, 0 }, { accd[1], 0, 0 },
-							{ accd[2], 0, 0 } };
-					accTranslation(R, gravity, mang);
-					result = maxtrixmutiply(R, acctmp);
-					Log.v("mangOutput", "x:" + result[0][0] + " " + "y:"
-							+ result[1][0] + " " + "z:" + result[2][0]
-							+ "time: " + timemang);
+				try {
+					FileOutputStream foStream = new FileOutputStream(Stringmag,
+							true); // 定义传感器数据的输出流
+					String sensorstr = mang[0] + " " + mang[1] + " " + mang[2]
+							+ " " + timemang + "\n";
+					byte[] buffer11 = new byte[sensorstr.length() * 2];
+					buffer11 = sensorstr.getBytes();
+					foStream.write(buffer11);
+					foStream.close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
-			}
-
-			/*
-			 * else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-			 * Log.v("Sensor.TYPE_ROTATION_VECTOR", event.sensor.getMinDelay() +
-			 * ""); rotation[0] = (float) values[0]; rotation[1] = (float)
-			 * values[1]; rotation[2] = (float) values[2]; //
-			 * 将最新的加速度传感器数据存在加速度传感器数组中 timerotation = time; if (wc == 1) { try {
-			 * 
-			 * FileOutputStream foStream = new FileOutputStream( tmpString,
-			 * true); // 定义传感器数据的输出流 String sensorstr = accd[0] + " " + accd[1]
-			 * + " " + accd[2] + " " + timeacc + " " + rotation[0] + " " +
-			 * rotation[1] + " " + rotation[2] + " " + timerotation + " " +
-			 * gyrd[0] + " " + gyrd[1] + " " + gyrd[2] + " " + timegyr + "\n";
-			 * byte[] buffer11 = new byte[sensorstr.length() * 2]; buffer11 =
-			 * sensorstr.getBytes(); foStream.write(buffer11); foStream.close();
-			 * } catch (FileNotFoundException e) { // TODO Auto-generated catch
-			 * block Log.v("FileNotFoundException", "OK"); e.printStackTrace();
-			 * } catch (IOException e) { // TODO Auto-generated catch block
-			 * e.printStackTrace(); } }
-			 * 
-			 * }
-			 */else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-				Log.v("Sensor.TYPE_GYROSCOPE", event.sensor.getMinDelay() + "");
+			} else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
 				gyrd[0] = (float) values[0];
 				gyrd[1] = (float) values[1];
 				gyrd[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
 				timegyr = time;
-				Log.v("TYPE_GYROSCOPE_timegyr", timegyr+"");
+				try {
+					FileOutputStream foStream = new FileOutputStream(Stringgry,
+							true); // 定义传感器数据的输出流
+					String sensorstr = gyrd[0] + " " + gyrd[1] + " " + gyrd[2]
+							+ " " + timegyr + "\n";
+					byte[] buffer11 = new byte[sensorstr.length() * 2];
+					buffer11 = sensorstr.getBytes();
+					foStream.write(buffer11);
+					foStream.close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+				rotation[0] = (float) values[0];
+				rotation[1] = (float) values[1];
+				rotation[2] = (float) values[2]; // 将最新的加速度传感器数据存在加速度传感器数组中
+				timerotation = time;
+				try {
+					FileOutputStream foStream = new FileOutputStream(Stringrotation,
+							true); // 定义传感器数据的输出流
+					String sensorstr = rotation[0] + " " +rotation[1] + " " + rotation[2]
+							+ " " + timerotation + "\n";
+					byte[] buffer11 = new byte[sensorstr.length() * 2];
+					buffer11 = sensorstr.getBytes();
+					foStream.write(buffer11);
+					foStream.close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 		}
@@ -324,9 +371,9 @@ public class read_train extends Activity implements OnTouchListener {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent e) {
 		switch (keyCode) {
-		case 4:
-			System.exit(0);
-			break;
+			case 4 :
+				System.exit(0);
+				break;
 		}
 		return true;
 	}
@@ -512,7 +559,7 @@ public class read_train extends Activity implements OnTouchListener {
 
 	private static float[][] maxtrixmutiply(float[][] maxtrileft,
 			float[][] maxtriright) {
-		float[][] result = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+		float[][] result = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 		// TODO Auto-generated method stub
 
 		for (int i = 0; i < maxtrileft.length; i++)
@@ -571,19 +618,16 @@ public class read_train extends Activity implements OnTouchListener {
 			preaccy = Float.parseFloat(stringArray[1]);
 			preaccz = Float.parseFloat(stringArray[2]);
 			pretime = Long.parseLong(stringArray[3]);
-			float[][] bufferacc = { { tmpaccx, 0, 0 }, { tmpaccy, 0, 0 },
-					{ tmpaccz, 0, 0 } };// 前面三个是加速度
-			float[] rotationVect = { tmpRotationx, tmpRotationy, tmpRotationz };
+			float[][] bufferacc = {{tmpaccx, 0, 0}, {tmpaccy, 0, 0},
+					{tmpaccz, 0, 0}};// 前面三个是加速度
+			float[] rotationVect = {tmpRotationx, tmpRotationy, tmpRotationz};
 			SensorManager.getRotationMatrixFromVector(mRotationMatrix,
 					rotationVect);
 			float[][] rotationversion = new float[3][];
 			float[][] mk = {
-					{ mRotationMatrix[0], mRotationMatrix[1],
-							mRotationMatrix[2] },
-					{ mRotationMatrix[3], mRotationMatrix[4],
-							mRotationMatrix[5] },
-					{ mRotationMatrix[6], mRotationMatrix[7],
-							mRotationMatrix[8] } };
+					{mRotationMatrix[0], mRotationMatrix[1], mRotationMatrix[2]},
+					{mRotationMatrix[3], mRotationMatrix[4], mRotationMatrix[5]},
+					{mRotationMatrix[6], mRotationMatrix[7], mRotationMatrix[8]}};
 			rotationversion = maxtrixmutiply(mk, bufferacc);
 			tmpaccx = rotationversion[0][0];
 			tmpaccy = rotationversion[1][0];
