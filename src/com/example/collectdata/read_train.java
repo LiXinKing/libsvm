@@ -102,7 +102,7 @@ public class read_train extends Activity implements OnTouchListener {
 		mySensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		// 获取缺省的线性加速度传感器
 		myaccelerometer = mySensorManager
-				.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		myrotationSensor = mySensorManager
 				.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 		mygyrSensor = mySensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -194,7 +194,7 @@ public class read_train extends Activity implements OnTouchListener {
 			float offset = (float) Math.sqrt(values[0] * values[0] + values[1]
 					* values[1] + values[2] * values[2]);
 			// 陀螺仪传感器变化
-			if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+			if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 				Log.v("Sensor.TYPE_LINEAR_ACCELERATION",
 						event.sensor.getMinDelay() + "");
 				// 小于ACCMIN时属于误差范围
@@ -476,16 +476,18 @@ public class read_train extends Activity implements OnTouchListener {
 		float preaccx = Float.parseFloat(stringArray[0]);
 		float preaccy = Float.parseFloat(stringArray[1]);
 		float preaccz = Float.parseFloat(stringArray[2]);
-		
-		long pretime = Long.parseLong(stringArray[3]);
-		
+
+		long pretimeacc = Long.parseLong(stringArray[3]);
+
 		float pregryx = Float.parseFloat(stringArray[8]);
 		float pregryy = Float.parseFloat(stringArray[9]);
 		float pregryz = Float.parseFloat(stringArray[10]);
+
+		long pretimegry = Long.parseLong(stringArray[11]);
 		
-		float prerotationx = Float.parseFloat(stringArray[4]);
-		float prerotationy = Float.parseFloat(stringArray[5]);
-		float prerotationz = Float.parseFloat(stringArray[6]);
+		float preRotationx = Float.parseFloat(stringArray[4]);
+		float preRotationy = Float.parseFloat(stringArray[5]);
+		float preRotationz = Float.parseFloat(stringArray[6]);
 		while ((s = sb.readLine()) != null) {
 			stringArray = s.split(" ");
 			long accTime = Integer.parseInt(stringArray[3]);
@@ -504,85 +506,108 @@ public class read_train extends Activity implements OnTouchListener {
 			float tmpRotationy = Float.parseFloat(stringArray[5]);
 			float tmpRotationz = Float.parseFloat(stringArray[6]);
 
-			if (accTime != pretime) {
-				tmpaccx = (tmpaccx - preaccx) / (accTime - pretime)
+			if (accTime != pretimeacc) {
+				tmpaccx = (tmpaccx - preaccx) / (accTime - pretimeacc)
 						* rotationTime
-						+ (preaccx * accTime - tmpaccx * pretime)
-						/ (accTime - pretime);
-				tmpaccy = (tmpaccy - preaccy) / (accTime - pretime)
+						+ (preaccx * accTime - tmpaccx * pretimeacc)
+						/ (accTime - pretimeacc);
+				tmpaccy = (tmpaccy - preaccy) / (accTime - pretimeacc)
 						* rotationTime
-						+ (preaccy * accTime - tmpaccy * pretime)
-						/ (accTime - pretime);
-				tmpaccz = (tmpaccz - preaccz) / (accTime - pretime)
+						+ (preaccy * accTime - tmpaccy * pretimeacc)
+						/ (accTime - pretimeacc);
+				tmpaccz = (tmpaccz - preaccz) / (accTime - pretimeacc)
 						* rotationTime
-						+ (preaccz * accTime - tmpaccz * pretime)
-						/ (accTime - pretime);
+						+ (preaccz * accTime - tmpaccz * pretimeacc)
+						/ (accTime - pretimeacc);
 			} else {
 				tmpaccx = preaccx;
 				tmpaccy = preaccy;
 				tmpaccz = preaccz;
 			}
-			if (grytime != pretime) {
-				tmpgryx = (tmpgryx - pregryx) / (grytime - pretime)
+			if (grytime != pretimegry) {
+				tmpgryx = (tmpgryx - pregryx) / (grytime - pretimegry)
 						* rotationTime
-						+ (pregryx * grytime - tmpgryx * pretime)
-						/ (grytime - pretime);
-				tmpgryy = (tmpgryy - pregryy) / (grytime - pretime)
+						+ (pregryx * grytime - tmpgryx * pretimegry)
+						/ (grytime - pretimegry);
+				tmpgryy = (tmpgryy - pregryy) / (grytime - pretimegry)
 						* rotationTime
-						+ (pregryy * grytime - tmpgryy * pretime)
-						/ (grytime - pretime);
-				tmpgryz = (tmpgryz - pregryz) / (grytime - pretime)
+						+ (pregryy * grytime - tmpgryy * pretimegry)
+						/ (grytime - pretimegry);
+				tmpgryz = (tmpgryz - pregryz) / (grytime - pretimegry)
 						* rotationTime
-						+ (pregryz * grytime - tmpgryz * pretime)
-						/ (grytime - pretime);
+						+ (pregryz * grytime - tmpgryz * pretimegry)
+						/ (grytime - pretimegry);
 
 			} else {
 				tmpgryx = pregryx;
 				tmpgryy = pregryy;
 				tmpgryz = pregryz;
 			}
-//用二字样拟合w=a+2bx
-			{
-				long h=(pretime+rotationTime)/2;
-				
-				float wxgain1=(h-pretime)*(pregryx+(pregryx+tmpgryx)/2)/2;
-				float wygain1=(h-pretime)*(pregryy+(pregryy+tmpgryy)/2)/2;
-				float wzgain1=(h-pretime)*(pregryz+(pregryz+tmpgryz)/2)/2;
-				
-				float wxgain2=(h-pretime)*(tmpgryx+(pregryx+tmpgryx)/2)/2;
-				float wygain2=(h-pretime)*(tmpgryy+(pregryy+tmpgryy)/2)/2;
-				float wzgain2=(h-pretime)*(tmpgryz+(pregryz+tmpgryz)/2)/2;
-				
-				
-				float mx=2/3*(wygain1*wxgain2-wzgain1*wygain2)+wxgain1+wxgain2;
-				float my=2/3*(wzgain1*wzgain2-wxgain1*wzgain2)+wygain1+wygain2;
-				float mz=2/3*(wxgain1*wygain2-wygain1*wxgain2)+wzgain1+wzgain2;
-				
-				float m=(float) Math.sqrt(mx*mx+my*my+mz*mz);
-				
-				float q1=(float) Math.cos(m/2);
-				float q2=(float)( mx/m*Math.sin(m/2));
-				float q3=(float) (my/m*Math.sin(m/2));
-				float q4=(float) (mz/m*Math.sin(m/2));
-				
-			}
+			// 用二字样拟合w=a+2bx
 			
-			
-			
+				long h = (pretimegry + rotationTime) / 2;
+
+				float wxgain1 = (h - pretimegry)
+						* (pregryx + (pregryx + tmpgryx) / 2) / 2;
+				float wygain1 = (h - pretimegry)
+						* (pregryy + (pregryy + tmpgryy) / 2) / 2;
+				float wzgain1 = (h - pretimegry)
+						* (pregryz + (pregryz + tmpgryz) / 2) / 2;
+
+				float wxgain2 = (h - pretimegry)
+						* (tmpgryx + (pregryx + tmpgryx) / 2) / 2;
+				float wygain2 = (h - pretimegry)
+						* (tmpgryy + (pregryy + tmpgryy) / 2) / 2;
+				float wzgain2 = (h - pretimegry)
+						* (tmpgryz + (pregryz + tmpgryz) / 2) / 2;
+
+				float mx = 2 / 3 * (wygain1 * wxgain2 - wzgain1 * wygain2)
+						+ wxgain1 + wxgain2;
+				float my = 2 / 3 * (wzgain1 * wzgain2 - wxgain1 * wzgain2)
+						+ wygain1 + wygain2;
+				float mz = 2 / 3 * (wxgain1 * wygain2 - wygain1 * wxgain2)
+						+ wzgain1 + wzgain2;
+
+				float m = (float) Math.sqrt(mx * mx + my * my + mz * mz);
+				float q1 ,q2,q3,q4;
+				if(m!=0){
+				 q1 = (float) Math.cos(m / 2);
+				 q2 = (float) (mx / m * Math.sin(m / 2));
+				 q3 = (float) (my / m * Math.sin(m / 2));
+				 q4 = (float) (mz / m * Math.sin(m / 2));
+				}
+				else {
+					 q1 = (float) Math.cos(m / 2);
+					 q2 = 0;
+					 q3 = 0;
+					 q4 = 0;
+				}
+				
+				float preRotation= 1 - preRotationx*preRotationx - preRotationy*preRotationy - preRotationz*preRotationz;
+				
+				float calRotation=q1*preRotation-q2*preRotationx-q3*preRotationy-q4*preRotationz;
+				float calRotationx=q2*preRotation+q1*preRotationx+q4*preRotationy-q3*preRotationz;
+				float calRotationy=q3*preRotation-q4*preRotationx+q1*preRotationy+q2*preRotationz;
+				float calRotationz=q4*preRotation+q3*preRotationx-q2*preRotationy+q1*preRotationz;
+
 			preaccx = Float.parseFloat(stringArray[0]);
 			preaccy = Float.parseFloat(stringArray[1]);
 			preaccz = Float.parseFloat(stringArray[2]);
-			pretime = Long.parseLong(stringArray[3]);
-			pregryx = Float.parseFloat(stringArray[8]);
-			pregryy = Float.parseFloat(stringArray[9]);
-			pregryz = Float.parseFloat(stringArray[10]);
-			 prerotationx = Float.parseFloat(stringArray[4]);
-			 prerotationy = Float.parseFloat(stringArray[5]);
-			 prerotationz = Float.parseFloat(stringArray[6]);
+			pretimeacc = accTime;
+			
+			pregryx = tmpgryx;
+			pregryy = tmpgryy;
+			pregryz = tmpgryz;
+			pretimegry = rotationTime;
+			
+			preRotationx = tmpRotationx;
+			preRotationy = tmpRotationy;
+			preRotationz = tmpRotationz;
 
 			float[][] bufferacc = {{tmpaccx, 0, 0}, {tmpaccy, 0, 0},
 					{tmpaccz, 0, 0}};// 前面三个是加速度
-			float[] rotationVect = {tmpRotationx, tmpRotationy, tmpRotationz};
+//			float[] rotationVect = {tmpRotationx, tmpRotationy, tmpRotationz};
+			float[] rotationVect = {calRotationx, calRotationy, calRotationz};
 			SensorManager.getRotationMatrixFromVector(mRotationMatrix,
 					rotationVect);
 			float[][] rotationversion = new float[3][];
@@ -596,9 +621,11 @@ public class read_train extends Activity implements OnTouchListener {
 			tmpaccz = rotationversion[2][0];
 
 			String sensorstr = tmpaccx + " " + tmpaccy + " " + tmpaccz + " "
-					+ rotationTime + " " + stringArray[8] + " "
-					+ stringArray[9] + " " + stringArray[10] + " "
-					+ stringArray[11] + "\n";
+					+ rotationTime + " " + tmpRotationx + " "
+					+ tmpRotationy + " " + tmpRotationz+ " "
+					+ rotationTime + " " + calRotationx + " "
+							+ calRotationy + " " + calRotationz+ " "
+							+ rotationTime +"\n";
 			byte[] buffer11 = new byte[sensorstr.length() * 2];
 			buffer11 = sensorstr.getBytes();
 			foStream.write(buffer11);
