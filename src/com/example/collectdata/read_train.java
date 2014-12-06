@@ -452,7 +452,20 @@ public class read_train extends Activity implements OnTouchListener {
 			}
 		return result;
 	}// 一个矩阵乘法
-
+	//用陀螺仪计算四元素变化，这里采用二子样的算法
+/*	public void  pCompensation() throws IOException {
+		BufferedReader sb = new BufferedReader(new FileReader(tmpString));
+		FileOutputStream foStream = new FileOutputStream(tmpStringOutput, true); // 定义传感器数据的输出流
+		String s = sb.readLine();// 清楚第一个标量号
+		s = s + "\n";
+		byte[] buffer = new byte[s.length() * 2];
+		buffer = s.getBytes();
+		foStream.write(buffer);// 读出后写回去
+	}*/
+	
+	
+	
+//将加速度和陀螺仪的值都平均到Rotation的时刻上
 	public void getChangedAcc() throws IOException {
 		BufferedReader sb = new BufferedReader(new FileReader(tmpString));
 		FileOutputStream foStream = new FileOutputStream(tmpStringOutput, true); // 定义传感器数据的输出流
@@ -467,13 +480,22 @@ public class read_train extends Activity implements OnTouchListener {
 		float preaccy = Float.parseFloat(stringArray[1]);
 		float preaccz = Float.parseFloat(stringArray[2]);
 		long pretime = Long.parseLong(stringArray[3]);
+		float pregryx = Float.parseFloat(stringArray[0]);
+		float pregryy = Float.parseFloat(stringArray[1]);
+		float pregryz = Float.parseFloat(stringArray[2]);
 		while ((s = sb.readLine()) != null) {
 			stringArray = s.split(" ");
-			int accTime = Integer.parseInt(stringArray[3]);
-			int rotationTime = Integer.parseInt(stringArray[7]);
+			long accTime = Integer.parseInt(stringArray[3]);
+			long grytime=Integer.parseInt(stringArray[11]);
+			long rotationTime = Integer.parseInt(stringArray[7]);
+			
 			float tmpaccx = Float.parseFloat(stringArray[0]);
 			float tmpaccy = Float.parseFloat(stringArray[1]);
 			float tmpaccz = Float.parseFloat(stringArray[2]);
+			
+			float tmpgryx = Float.parseFloat(stringArray[0]);
+			float tmpgryy = Float.parseFloat(stringArray[1]);
+			float tmpgryz = Float.parseFloat(stringArray[2]);
 
 			float tmpRotationx = Float.parseFloat(stringArray[4]);
 			float tmpRotationy = Float.parseFloat(stringArray[5]);
