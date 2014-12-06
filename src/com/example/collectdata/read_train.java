@@ -1,9 +1,7 @@
 package com.example.collectdata;
 
 import java.io.File;
-
 import com.example.libsvm.R;
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,12 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-
 import com.example.handledata.translatedata;
 import com.example.preproccess.PCA_done;
-
 import android.R.integer;
 import android.R.string;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -33,6 +30,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
@@ -49,6 +47,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 public class read_train extends Activity implements OnTouchListener {
 
 	private int wc; // 用于数据记录启动/暂停的控制标记，1代表记录数据，0代表暂停记录
