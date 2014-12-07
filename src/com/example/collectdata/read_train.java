@@ -462,7 +462,7 @@ public class read_train extends Activity implements OnTouchListener {
 	// 将加速度和陀螺仪的值都平均到Rotation的时刻上
 
 	public void getChangedAcc() throws IOException {
-		float DT = 1.0f / 100.0f;
+		float DT = 1.0f / 1000.0f;
 		BufferedReader sb = new BufferedReader(new FileReader(tmpString));
 		FileOutputStream foStream = new FileOutputStream(tmpStringOutput, true); // 定义传感器数据的输出流
 		String s = sb.readLine();// 清楚第一个标量号
