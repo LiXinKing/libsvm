@@ -545,28 +545,40 @@ public class read_train extends Activity implements OnTouchListener {
 			} //
 			// 用二字样拟合w=a+2bx
 
-			long h = (pretimegry + rotationTime) / 2;
+			long h1 = pretimegry+( rotationTime-pretimegry ) / 3;
+			long h2=	pretimegry+( rotationTime-pretimegry )*2 / 3;
+			
+			
+			float wxgain1 = (h1 - pretimegry)
+					* (pregryx + (2*pregryx + tmpgryx) / 3) / 2;
+			float wygain1 = (h1 - pretimegry)
+					* (pregryy + (2*pregryy + tmpgryy) / 3) / 2;
+			float wzgain1 = (h1 - pretimegry)
+					* (pregryz + (2*pregryz + tmpgryz) / 3) / 2;
 
-			float wxgain1 = (h - pretimegry)
-					* (pregryx + (pregryx + tmpgryx) / 2) / 2;
-			float wygain1 = (h - pretimegry)
-					* (pregryy + (pregryy + tmpgryy) / 2) / 2;
-			float wzgain1 = (h - pretimegry)
-					* (pregryz + (pregryz + tmpgryz) / 2) / 2;
+			float wxgain2 = (h1 - pretimegry)
+					* ((pregryx +2* tmpgryx) / 3 +  (2*pregryx + tmpgryx) / 3) / 2;
+			float wygain2 = (h1 - pretimegry)
+					* ((pregryy +2* tmpgryy) / 3 +  (2*pregryy + tmpgryy) / 3) / 2;
+			float wzgain2 = (h1 - pretimegry)
+					* ((pregryz +2* tmpgryz) / 3 +  (2*pregryz + tmpgryz) / 3) / 2;
+			
+			float wxgain3 = (h1 - pretimegry)
+					* ( (pregryx +2* tmpgryx) / 3+tmpgryx ) / 2;
+			float wygain3 = (h1 - pretimegry)
+					* ( (pregryy +2* tmpgryy) / 3+tmpgryy ) / 2;
+			float wzgain3 = (h1 - pretimegry)
+					* ( (pregryz +2* tmpgryz) / 3+tmpgryz ) / 2;
 
-			float wxgain2 = (h - pretimegry)
-					* (tmpgryx + (pregryx + tmpgryx) / 2) / 2;
-			float wygain2 = (h - pretimegry)
-					* (tmpgryy + (pregryy + tmpgryy) / 2) / 2;
-			float wzgain2 = (h - pretimegry)
-					* (tmpgryz + (pregryz + tmpgryz) / 2) / 2;
-
-			float mx = 2 / 3 * (wygain1 * wzgain2 - wzgain1 * wygain2)
-					+ wxgain1 + wxgain2;
-			float my = 2 / 3 * (wzgain1 * wxgain2 - wxgain1 * wzgain2)
-					+ wygain1 + wygain2;
-			float mz = 2 / 3 * (wxgain1 * wygain2 - wygain1 * wxgain2)
-					+ wzgain1 + wzgain2;
+			float mx = 33 / 80 * (wygain1 * wzgain3 - wzgain1 * wygain3)+
+					57/80*(wygain2 * (wzgain3-wzgain1) - wzgain2 * (wygain3-wygain1))
+					+ wxgain1 + wxgain2+wxgain3;
+			float my = 33 / 80* (wzgain1 * wxgain3 - wxgain1 * wzgain3)+
+					57/80*(wzgain2 * (wxgain3-wxgain1) - wxgain2 * (wzgain3-wzgain1))
+					+ wygain1 + wygain2+wygain3;
+			float mz = 33 / 80 * (wxgain1 * wygain3 - wygain1 * wxgain3)+
+					57/80*(wxgain2 * (wygain3-wygain1) - wygain2 * (wxgain3-wxgain1))
+					+ wzgain1 + wzgain2+wzgain3;
 
 			float m = (float) Math.sqrt(mx * mx + my * my + mz * mz);
 			float q1, q2, q3, q4;
@@ -661,7 +673,7 @@ public class read_train extends Activity implements OnTouchListener {
 			wc = 0;
 			vibrator.vibrate(200);
 			view.setBackgroundResource(R.drawable.button1);
-
+ 
 			final Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage("确认输入？");
 			builder.setPositiveButton("确定",
