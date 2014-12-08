@@ -173,14 +173,6 @@ public class read_train extends Activity implements OnTouchListener {
 	private SensorEventListener mySensorListener = new SensorEventListener() {// 开发实现了SensorEventListener接口的传感器监听器
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-			// Log.v("accuracy1",sensor.getType()+"");
-			// Log.v("accuracy2",accuracy+"");
-			// Log.v("accuracy1", SensorManager.SENSOR_STATUS_ACCURACY_HIGH+"");
-			// Log.v("accuracy2", SensorManager.SENSOR_STATUS_ACCURACY_LOW+"");
-			// Log.v("accuracy3",
-			// SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM+"");
-			// Log.v("accuracy4", SensorManager.SENSOR_STATUS_UNRELIABLE+"");
-
 		}
 
 		@Override
@@ -198,9 +190,9 @@ public class read_train extends Activity implements OnTouchListener {
 				Log.v("Sensor.TYPE_LINEAR_ACCELERATION",
 						event.sensor.getMinDelay() + "");
 				// 小于ACCMIN时属于误差范围
-				accd[0] = Math.abs(values[0]) > 0.4 ? values[0] : 0;
-				accd[1] = Math.abs(values[1]) > 0.4 ? values[1] : 0;
-				accd[2] = Math.abs(values[2]) > 0.4 ? values[2] : 0;
+				accd[0] = Math.abs(values[0]) > 0.2 ? values[0] : 0;
+				accd[1] = Math.abs(values[1]) > 0.2 ? values[1] : 0;
+				accd[2] = Math.abs(values[2]) > 0.2 ? values[2] : 0;
 				timeacc = time;
 			}
 
@@ -654,7 +646,7 @@ public class read_train extends Activity implements OnTouchListener {
 			tmpaccz = rotationversion[2][0];
 
 			String sensorstr = tmpaccx + " " + tmpaccy + " " + tmpaccz + " "
-					+ rotationTime + 0 + " " + 0 + " " + 0 + " "
+					+ rotationTime + " "+0 + " " + 0 + " " + 0 + " "
 							+ rotationTime +"\n";
 			byte[] buffer11 = new byte[sensorstr.length() * 2];
 			buffer11 = sensorstr.getBytes();
