@@ -713,13 +713,13 @@ public class read_train extends Activity implements OnTouchListener {
 			pregryz = tmpgryz;
 			pretimegry = rotationTime;
 
-			preRotationx = calRotationx;
-			preRotationy = calRotationy;
-			preRotationz = calRotationz;
+			preRotationx = (calRotationx + tmpRotationx) / 2;
+			preRotationy =(calRotationy + tmpRotationy) / 2;
+			preRotationz = (calRotationz + tmpRotationz) / 2;
 
 			float[][] bufferacc = {{tmpaccx, 0, 0}, {tmpaccy, 0, 0},
 					{tmpaccz, 0, 0}};// 前面三个是加速度
-			float[] rotationVect = {calRotationx, calRotationy, calRotationz};
+			float[] rotationVect = {preRotationx, preRotationy, preRotationz};
 			SensorManager.getRotationMatrixFromVector(mRotationMatrix,
 					rotationVect);
 			float[][] rotationversion = new float[3][];
@@ -732,24 +732,10 @@ public class read_train extends Activity implements OnTouchListener {
 			tmpaccy = rotationversion[1][0];
 			tmpaccz = rotationversion[2][0];
 
-			float[] rotationVect1 = {tmpRotationx, tmpRotationy, tmpRotationz};
-			SensorManager.getRotationMatrixFromVector(mRotationMatrix,
-					rotationVect1);
-			float[][] mk1 = {
-					{mRotationMatrix[0], mRotationMatrix[1], mRotationMatrix[2]},
-					{mRotationMatrix[3], mRotationMatrix[4], mRotationMatrix[5]},
-					{mRotationMatrix[6], mRotationMatrix[7], mRotationMatrix[8]}};
-			rotationversion = maxtrixmutiply(mk1, bufferacc);
-			float tmpaccx1 = rotationversion[0][0];
-			float tmpaccy1 = rotationversion[1][0];
-			float tmpaccz1 = rotationversion[2][0];
+
 
 			String sensorstr = tmpaccx + " " + tmpaccy + " " + tmpaccz + " "
-					+ rotationTime + "\n" + tmpaccx1 + " " + tmpaccy1 + " "
-					+ tmpaccz1 + " " + rotationTime + "\n" + tmpRotationx + " "
-					+ tmpRotationy + " " + tmpRotationz + " " + rotationTime
-					+ "\n" + calRotationx + " " + calRotationy + " "
-					+ calRotationz + " " + rotationTime + "\n";
+					+ rotationTime +  "\n";
 			byte[] buffer11 = new byte[sensorstr.length() * 2];
 			buffer11 = sensorstr.getBytes();
 			foStream.write(buffer11);
