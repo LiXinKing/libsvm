@@ -673,9 +673,9 @@ public class read_train extends Activity implements OnTouchListener {
 			}
 			// 用单子样拟合
 
-			float mx = (pregryx+tmpgryx)/2 * (rotationTime - pretimegry);
-			float my = (pregryy+tmpgryy) /2* (rotationTime - pretimegry);
-			float mz = (pregryz+tmpgryz) /2* (rotationTime - pretimegry);
+			float mx = pregryx * (rotationTime - pretimegry);
+			float my = pregryy* (rotationTime - pretimegry);
+			float mz =pregryz* (rotationTime - pretimegry);
 
 			float m = (float) Math.sqrt(mx * mx + my * my + mz * mz);
 			float q1, q2, q3, q4;
