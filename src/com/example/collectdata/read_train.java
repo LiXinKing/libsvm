@@ -359,35 +359,58 @@ public class read_train extends Activity implements OnTouchListener {
 						e.printStackTrace();
 					}
 				try {
-//					InputStream is = new FileInputStream(tmpString);
-//					OutputStream os = new FileOutputStream(backupPath, true);
-//					int len = 0;
-//					while ((len = is.read()) != -1) {
-//						os.write(len);
-//					}
-//					is.close();
-//					os.close();
-//					is = new FileInputStream(tmpStringOutput);
-//					os = new FileOutputStream(backupPathtmp, true);
-//					len = 0;
-//					while ((len = is.read()) != -1) {
-//						os.write(len);
-//					}
-//					is.close();
-//					os.close();
-//					do_num = 0;
-//					numdis.setText(Integer.toString(do_num));
-					getChangedAcc();
-
-					start_train();// 提取特征向量
+					// InputStream is = new FileInputStream(tmpString);
+					// OutputStream os = new FileOutputStream(backupPath, true);
+					// int len = 0;
+					// while ((len = is.read()) != -1) {
+					// os.write(len);
+					// }
+					// is.close();
+					// os.close();
+					// is = new FileInputStream(tmpStringOutput);
+					// os = new FileOutputStream(backupPathtmp, true);
+					// len = 0;
+					// while ((len = is.read()) != -1) {
+					// os.write(len);
+					// }
+					// is.close();
+					// os.close();
+					// do_num = 0;
+					// numdis.setText(Integer.toString(do_num));
+					getChangedAccMM();
 
 				} catch (Exception e) {
 					// TODO: handle exception
 					e.printStackTrace();
 				} finally {
 					// new File(realString).delete(); // 获取文件对象
-//					new File(tmpString).delete();
-//					new File(tmpStringOutput).delete();
+					// new File(tmpString).delete();
+					// new File(tmpStringOutput).delete();
+				}
+				FileInputStream Instream;
+				try {
+					Instream = new FileInputStream(
+							tmpStringOutput);
+					File sensortmp = new File(tmpStringOutput);
+					long length = sensortmp.length();
+					byte[] buffer = new byte[(int) (length )];
+					Instream.read(buffer);
+					Instream.close();
+					FileOutputStream Outstream = new FileOutputStream(
+							realString, true);
+					Outstream.write(buffer);
+					Outstream.close();
+					start_train();// 提取特征向量
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}finally {
+					 new File(realString).delete(); // 获取文件对象
+					 new File(tmpString).delete();
+					 new File(tmpStringOutput).delete();
 				}
 
 			}
@@ -431,8 +454,8 @@ public class read_train extends Activity implements OnTouchListener {
 			// TODO: handle exception
 			e.printStackTrace();
 		} finally {
-			new File("/sdcard/train/data/PCA_train").delete();
-			new File(realString).delete();
+			// new File("/sdcard/train/data/PCA_train").delete();
+			// new File(realString).delete();
 		}
 	}
 
@@ -449,7 +472,176 @@ public class read_train extends Activity implements OnTouchListener {
 			}
 		return result;
 	}// 一个矩阵乘法
+	public static boolean isint(float test) {
+		Float aaFloat = new Float(test);
+		int i = aaFloat.intValue();
+		float t = aaFloat.floatValue();
+		if ((t - i) == 0)
+			return true;
+		else
+			return false;
 
+	}
+	public void getChangedAccMM() throws IOException {
+		float DT = 1.0f / 1000.0f;
+		BufferedReader sb = new BufferedReader(new FileReader(tmpString));
+		FileOutputStream foStream = new FileOutputStream(tmpStringOutput, true); // 定义传感器数据的输出流、
+		String s=sb.readLine();
+		while (isint(Float.parseFloat(s ))) {// 清楚第一个标量号
+			s = s + "\n";
+			byte[] buffer = new byte[s.length() * 2];
+			buffer = s.getBytes();
+			foStream.write(buffer);// 读出后写回去
+			s = sb.readLine();
+			String stringArray[] = s.split(" ");
+			float preaccx = Float.parseFloat(stringArray[0]);
+			float preaccy = Float.parseFloat(stringArray[1]);
+			float preaccz = Float.parseFloat(stringArray[2]);
+
+			long pretimeacc = Long.parseLong(stringArray[3]);
+
+			float pregryx = Float.parseFloat(stringArray[8]);
+			float pregryy = Float.parseFloat(stringArray[9]);
+			float pregryz = Float.parseFloat(stringArray[10]);
+
+			long pretimegry = Long.parseLong(stringArray[11]);
+
+			float preRotationx = Float.parseFloat(stringArray[4]);
+			float preRotationy = Float.parseFloat(stringArray[5]);
+			float preRotationz = Float.parseFloat(stringArray[6]);
+			while (((s = sb.readLine()) != null)&&(s.contains(" "))) {
+				stringArray = s.split(" ");
+				long accTime = Integer.parseInt(stringArray[3]);
+				long grytime = Integer.parseInt(stringArray[11]);
+				long rotationTime = Integer.parseInt(stringArray[7]);
+
+				float tmpaccx = Float.parseFloat(stringArray[0]);
+				float tmpaccy = Float.parseFloat(stringArray[1]);
+				float tmpaccz = Float.parseFloat(stringArray[2]);
+
+				float tmpgryx = Float.parseFloat(stringArray[8]);
+				float tmpgryy = Float.parseFloat(stringArray[9]);
+				float tmpgryz = Float.parseFloat(stringArray[10]);
+
+				float tmpRotationx = Float.parseFloat(stringArray[4]);
+				float tmpRotationy = Float.parseFloat(stringArray[5]);
+				float tmpRotationz = Float.parseFloat(stringArray[6]);
+
+				if (accTime != pretimeacc) {
+					tmpaccx = (tmpaccx - preaccx) / (accTime - pretimeacc)
+							* rotationTime
+							+ (preaccx * accTime - tmpaccx * pretimeacc)
+							/ (accTime - pretimeacc);
+					tmpaccy = (tmpaccy - preaccy) / (accTime - pretimeacc)
+							* rotationTime
+							+ (preaccy * accTime - tmpaccy * pretimeacc)
+							/ (accTime - pretimeacc);
+					tmpaccz = (tmpaccz - preaccz) / (accTime - pretimeacc)
+							* rotationTime
+							+ (preaccz * accTime - tmpaccz * pretimeacc)
+							/ (accTime - pretimeacc);
+				} else {
+					tmpaccx = preaccx;
+					tmpaccy = preaccy;
+					tmpaccz = preaccz;
+				}
+				if (grytime != pretimegry) {
+					tmpgryx = (tmpgryx - pregryx) / (grytime - pretimegry)
+							* rotationTime
+							+ (pregryx * grytime - tmpgryx * pretimegry)
+							/ (grytime - pretimegry);
+					tmpgryy = (tmpgryy - pregryy) / (grytime - pretimegry)
+							* rotationTime
+							+ (pregryy * grytime - tmpgryy * pretimegry)
+							/ (grytime - pretimegry);
+					tmpgryz = (tmpgryz - pregryz) / (grytime - pretimegry)
+							* rotationTime
+							+ (pregryz * grytime - tmpgryz * pretimegry)
+							/ (grytime - pretimegry);
+
+				} else {
+					tmpgryx = pregryx;
+					tmpgryy = pregryy;
+					tmpgryz = pregryz;
+				}
+				// 用单子样拟合
+
+				float mx = pregryx * (rotationTime - pretimegry);
+				float my = pregryy * (rotationTime - pretimegry);
+				float mz = pregryz * (rotationTime - pretimegry);
+
+				float m = (float) Math.sqrt(mx * mx + my * my + mz * mz);
+				float q1, q2, q3, q4;
+				if (m != 0) {
+					q1 = (float) Math.cos(m / 2 * DT);
+					q2 = (float) (mx / m * Math.sin(m / 2 * DT));
+					q3 = (float) (my / m * Math.sin(m / 2 * DT));
+					q4 = (float) (mz / m * Math.sin(m / 2 * DT));
+				} else {
+					q1 = (float) Math.cos(m / 2);
+					q2 = 0;
+					q3 = 0;
+					q4 = 0;
+				}
+
+				float preRotation = 1 - preRotationx * preRotationx
+						- preRotationy * preRotationy - preRotationz
+						* preRotationz;
+
+				float calRotation = q1 * preRotation - q2 * preRotationx - q3
+						* preRotationy - q4 * preRotationz;
+				float calRotationx = q2 * preRotation + q1 * preRotationx + q4
+						* preRotationy - q3 * preRotationz;
+				float calRotationy = q3 * preRotation - q4 * preRotationx + q1
+						* preRotationy + q2 * preRotationz;
+				float calRotationz = q4 * preRotation + q3 * preRotationx - q2
+						* preRotationy + q1 * preRotationz;
+
+				preaccx = Float.parseFloat(stringArray[0]);
+				preaccy = Float.parseFloat(stringArray[1]);
+				preaccz = Float.parseFloat(stringArray[2]);
+				pretimeacc = accTime;
+
+				pregryx = tmpgryx;
+				pregryy = tmpgryy;
+				pregryz = tmpgryz;
+				pretimegry = rotationTime;
+
+				preRotationx = (calRotationx + tmpRotationx) / 2;
+				preRotationy = (calRotationy + tmpRotationy) / 2;
+				preRotationz = (calRotationz + tmpRotationz) / 2;
+
+				float[][] bufferacc = {{tmpaccx, 0, 0}, {tmpaccy, 0, 0},
+						{tmpaccz, 0, 0}};// 前面三个是加速度
+				float[] rotationVect = {preRotationx, preRotationy,
+						preRotationz};
+				SensorManager.getRotationMatrixFromVector(mRotationMatrix,
+						rotationVect);
+				float[][] rotationversion = new float[3][];
+				float[][] mk = {
+						{mRotationMatrix[0], mRotationMatrix[1],
+								mRotationMatrix[2]},
+						{mRotationMatrix[3], mRotationMatrix[4],
+								mRotationMatrix[5]},
+						{mRotationMatrix[6], mRotationMatrix[7],
+								mRotationMatrix[8]}};
+				rotationversion = maxtrixmutiply(mk, bufferacc);
+				tmpaccx = rotationversion[0][0];
+				tmpaccy = rotationversion[1][0];
+				tmpaccz = rotationversion[2][0];
+
+				String sensorstr = tmpaccx + " " + tmpaccy + " " + tmpaccz
+						+ " " + rotationTime + " " + 0 + " " + 0 + " " + 0
+						+ " " + rotationTime + "\n";
+				byte[] buffer11 = new byte[sensorstr.length() * 2];
+				buffer11 = sensorstr.getBytes();
+				foStream.write(buffer11);
+
+			}
+		}
+		sb.close();
+		foStream.close();
+	}
 
 	public void getChangedAcc() throws IOException {
 		float DT = 1.0f / 1000.0f;
@@ -535,8 +727,8 @@ public class read_train extends Activity implements OnTouchListener {
 			// 用单子样拟合
 
 			float mx = pregryx * (rotationTime - pretimegry);
-			float my = pregryy* (rotationTime - pretimegry);
-			float mz =pregryz* (rotationTime - pretimegry);
+			float my = pregryy * (rotationTime - pretimegry);
+			float mz = pregryz * (rotationTime - pretimegry);
 
 			float m = (float) Math.sqrt(mx * mx + my * my + mz * mz);
 			float q1, q2, q3, q4;
@@ -575,7 +767,7 @@ public class read_train extends Activity implements OnTouchListener {
 			pretimegry = rotationTime;
 
 			preRotationx = (calRotationx + tmpRotationx) / 2;
-			preRotationy =(calRotationy + tmpRotationy) / 2;
+			preRotationy = (calRotationy + tmpRotationy) / 2;
 			preRotationz = (calRotationz + tmpRotationz) / 2;
 
 			float[][] bufferacc = {{tmpaccx, 0, 0}, {tmpaccy, 0, 0},
@@ -593,10 +785,9 @@ public class read_train extends Activity implements OnTouchListener {
 			tmpaccy = rotationversion[1][0];
 			tmpaccz = rotationversion[2][0];
 
-
-
 			String sensorstr = tmpaccx + " " + tmpaccy + " " + tmpaccz + " "
-					+ rotationTime +  "\n";
+					+ rotationTime + " " + 0 + " " + 0 + " " + 0 + " "
+					+ rotationTime + "\n";
 			byte[] buffer11 = new byte[sensorstr.length() * 2];
 			buffer11 = sensorstr.getBytes();
 			foStream.write(buffer11);
