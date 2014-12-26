@@ -640,10 +640,10 @@ public class read_train extends Activity implements OnTouchListener {
 					{mRotationMatrix[0], mRotationMatrix[1], mRotationMatrix[2]},
 					{mRotationMatrix[3], mRotationMatrix[4], mRotationMatrix[5]},
 					{mRotationMatrix[6], mRotationMatrix[7], mRotationMatrix[8]}};
-			rotationversion = maxtrixmutiply(mk, bufferacc);
-			tmpaccx = rotationversion[0][0];
-			tmpaccy = rotationversion[1][0];
-			tmpaccz = rotationversion[2][0];
+//			rotationversion = maxtrixmutiply(mk, bufferacc);
+//			tmpaccx = rotationversion[0][0];
+//			tmpaccy = rotationversion[1][0];
+//			tmpaccz = rotationversion[2][0];
 
 			String sensorstr = tmpaccx + " " + tmpaccy + " " + tmpaccz + " "
 					+ rotationTime + " "+0 + " " + 0 + " " + 0 + " "
