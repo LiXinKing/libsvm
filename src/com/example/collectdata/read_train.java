@@ -337,39 +337,9 @@ public class read_train extends Activity implements OnTouchListener {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				// TODO Auto-generated method stub
-				String backupPath = backOutput
-						+ numEditText.getText().toString();
-				String backupPathtmp = backOutput
-						+ numEditText.getText().toString() + ".tmp";
-				Log.v("numEditText", numEditText.getText().toString());
-				File tmpbackupFile = new File(backupPath);
-				if (!tmpbackupFile.exists())
-					try {
-						tmpbackupFile.createNewFile();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				try {
-					InputStream is = new FileInputStream(tmpString);
-					OutputStream os = new FileOutputStream(backupPath, true);
-					int len = 0;
-					while ((len = is.read()) != -1) {
-						os.write(len);
-					}
-					is.close();
-					os.close();
-					is = new FileInputStream(tmpStringOutput);
-					os = new FileOutputStream(backupPathtmp, true);
-					len = 0;
-					while ((len = is.read()) != -1) {
-						os.write(len);
-					}
-					is.close();
-					os.close();
-					do_num = 0;
-					numdis.setText(Integer.toString(do_num));
-					start_train();// 提取特征向量
+				try{
+					wirteAcc();
+
 
 				} catch (Exception e) {
 					// TODO: handle exception
@@ -377,7 +347,7 @@ public class read_train extends Activity implements OnTouchListener {
 				} finally {
 					 new File(realString).delete(); // 获取文件对象
 					new File(tmpString).delete();
-					new File(tmpStringOutput).delete();
+//					new File(tmpStringOutput).delete();
 				}
 
 			}
@@ -398,7 +368,7 @@ public class read_train extends Activity implements OnTouchListener {
 		vibrator.vibrate(200);
 	}
 	// 下面是从MainActivity中搬运来的一个train的函数来实现一键提取特征向量，和MainActivity的start_train的功能一样
-	private void start_train() throws IOException {
+	private void start_train(String realString) throws IOException {
 
 		File trainFile = new File(realString);
 		if (!trainFile.exists() || (trainFile.length() == 0)) {
@@ -416,7 +386,7 @@ public class read_train extends Activity implements OnTouchListener {
 		 * toast("数据太长了，请重新输入"); return; }
 		 */
 		try {
-			translatedata_train.extract(true);
+			translatedata_train.extract(false);
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -439,16 +409,80 @@ public class read_train extends Activity implements OnTouchListener {
 			}
 		return result;
 	}// 一个矩阵乘法
-		// 用陀螺仪计算四元素变化，这里采用二子样的算法
 
-	/*
-	 * public void pCompensation() throws IOException { BufferedReader sb = new
-	 * BufferedReader(new FileReader(tmpString)); FileOutputStream foStream =
-	 * new FileOutputStream(tmpStringOutput, true); // 定义传感器数据的输出流 String s =
-	 * sb.readLine();// 清楚第一个标量号 s = s + "\n"; byte[] buffer = new
-	 * byte[s.length() * 2]; buffer = s.getBytes(); foStream.write(buffer); //
-	 * 读出后写回去 }
-	 */
+	
+	public void wirteAcc() throws IOException {
+		BufferedReader sb = new BufferedReader(new FileReader(tmpString));
+		String s = sb.readLine();// 清楚第一个标量号
+		int i=0;
+		String ttrealString=null;
+		while(s.length()==1){
+			i++;
+			 ttrealString=realString+i;
+			FileOutputStream foStream = new FileOutputStream(ttrealString, true); // 定义传感器数据的输出流
+			Log.v("readline", s.length()+"");
+			s = s + "\n";
+			byte[] buffer = new byte[s.length() * 2];
+			buffer = s.getBytes();
+			foStream.write(buffer);
+			s=sb.readLine();
+			String stringArray[] = s.split(" ");
+			float preaccx = Float.parseFloat(stringArray[0]);
+			float preaccy = Float.parseFloat(stringArray[1]);
+			float preaccz = Float.parseFloat(stringArray[2]);
+
+			long pretimeacc = Long.parseLong(stringArray[3]);
+			
+			while((s=sb.readLine()).length()!=1&&s!=null){
+				 stringArray = s.split(" ");
+				long accTime = Integer.parseInt(stringArray[3]);
+				float tmpaccx = Float.parseFloat(stringArray[0]);
+				float tmpaccy = Float.parseFloat(stringArray[1]);
+				float tmpaccz = Float.parseFloat(stringArray[2]);
+				long rotationTime = Integer.parseInt(stringArray[7]);
+				if (accTime != pretimeacc) {
+					tmpaccx = (tmpaccx - preaccx) / (accTime - pretimeacc)
+							* rotationTime
+							+ (preaccx * accTime - tmpaccx * pretimeacc)
+							/ (accTime - pretimeacc);
+					tmpaccy = (tmpaccy - preaccy) / (accTime - pretimeacc)
+							* rotationTime
+							+ (preaccy * accTime - tmpaccy * pretimeacc)
+							/ (accTime - pretimeacc);
+					tmpaccz = (tmpaccz - preaccz) / (accTime - pretimeacc)
+							* rotationTime
+							+ (preaccz * accTime - tmpaccz * pretimeacc)
+							/ (accTime - pretimeacc);
+				} else {
+					tmpaccx = preaccx;
+					tmpaccy = preaccy;
+					tmpaccz = preaccz;
+				}
+				String sensorstr = tmpaccx + " " + tmpaccy + " " + tmpaccz + " "
+						+ rotationTime + " "+0 + " " + 0 + " " + 0 + " "
+								+ rotationTime +"\n";
+				byte[] buffer11 = new byte[sensorstr.length() * 2];
+				buffer11 = sensorstr.getBytes();
+				foStream.write(buffer11);
+			}
+			foStream.close();
+			Log.v("foStream", i+"");
+			start_train(ttrealString);// 提取特征向量
+			 new File(ttrealString).delete(); // 获取文件对象
+		}
+		sb.close();
+	}
+	public static boolean isint(float test) {
+		Float aaFloat = new Float(test);
+		int i = aaFloat.intValue();
+		float t = aaFloat.floatValue();
+		if ((t - i) == 0)
+			return true;
+		else
+			return false;
+
+	}
+
 
 	// 将加速度和陀螺仪的值都平均到Rotation的时刻上
 

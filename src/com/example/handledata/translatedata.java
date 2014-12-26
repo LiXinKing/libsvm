@@ -109,23 +109,23 @@ public class translatedata {
 	}
 	public void extract(boolean train_predict) throws IOException {
 
-		long len = floatcollectArray.size();
-		int recycle = 0;
-		int flagb = 0;
-		for (int l = 0; l < len; l++) {
-			if (isint(floatcollectArray.get(l)[0])) {
-				recycle++;
-				if (recycle == 1)
-					flagb = l;
-				else {
-					write_infile(flagb, l, train_predict);
-					flagb = l;
-				}
-
-			}
-
-		}
-		write_infile(flagb, floatcollectArray.size(), train_predict);
+//		long len = floatcollectArray.size();
+//		int recycle = 0;
+//		int flagb = 0;
+//		for (int l = 0; l < len; l++) {
+//			if (isint(floatcollectArray.get(l)[0])) {
+//				recycle++;
+//				if (recycle == 1)
+//					flagb = l;
+//				else {
+//					write_infile(flagb, l, train_predict);
+//					flagb = l;
+//				}
+//
+//			}
+//
+//		}
+		write_infile(0, floatcollectArray.size(), train_predict);
 
 	}
 	// 如果是train的话先splited一下，predict由于已经splited了所以这里不用了,TRUE表示train
@@ -205,6 +205,7 @@ public class translatedata {
 			}
 			StringBuilder featurebuilder = new StringBuilder();
 			featurebuilder.append(String.valueOf(target_extract(floatinout)));
+			Log.v("target_extract", String.valueOf(target_extract(floatinout)));
 			featurebuilder.append(" ");
 			int connlen = conn.length;
 			for (int k = 0; k < connlen; k++) {
