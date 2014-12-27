@@ -78,6 +78,7 @@ public class read_train extends Activity implements OnTouchListener {
 	private String tmpStringOutput = "//sdcard/train/data/sensortestacc.tmp.out";// 将加速度平均到时间带你的数据
 
 	private String backOutput = "//sdcard/train/data/";
+	
 
 	// 这里必须要化成7位数，否则比较会出错
 	// RandomAccessFile randomfile;
@@ -376,10 +377,10 @@ public class read_train extends Activity implements OnTouchListener {
 					.show();
 			return;
 		}
-		// new PCA_done(trainfile,"/sdcard/train/data/PCA_train");//PCA模块
-		// translatedata translatedata_train=new
-		// translatedata("/sdcard/train/data/PCA_train");
-		translatedata translatedata_train = new translatedata(realString);
+		 new PCA_done(realString,"/sdcard/train/data/PCA_train");//PCA模块
+		 translatedata translatedata_train=new
+		 translatedata("/sdcard/train/data/PCA_train");
+//		translatedata translatedata_train = new translatedata(realString);
 		translatedata_train.file_array();
 		/*
 		 * if(translatedata_train.floatcollectArray.size()>1000) {

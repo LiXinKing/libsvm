@@ -175,11 +175,11 @@ public class translatedata {
 
 		float[] conn = new float[accextract.length * 7];
 		System.arraycopy(accextract, 0, conn, 0, 3);
-		System.arraycopy(energy, 0, conn, 3, 3);
-		System.arraycopy(MAD, 0, conn, 6, 3);
+//		System.arraycopy(energy, 0, conn, 3, 3);
+//		System.arraycopy(MAD, 0, conn, 6, 3);
 		System.arraycopy(IRQ, 0, conn, 9, 3);
-		System.arraycopy(corr, 0, conn, 12, 3);
-		System.arraycopy(rms, 0, conn, 15, 3);
+//		System.arraycopy(corr, 0, conn, 12, 3);
+//		System.arraycopy(rms, 0, conn, 15, 3);
 
 		String[] RFtract = RF_extract_2D(floatinout, true);
 

@@ -36,19 +36,19 @@ public class PCA_done {
 		int length = floatcollectArray.size();
 		int recycle = 0;
 		int flagb = 0;
-		for (int l = 0; l < length; l++) {
-			if (isint(floatcollectArray.get(l)[0])) {
-				recycle++;
-				if (recycle == 1)
-					flagb = l;
-				else {
-					write_infile(flagb, l);
-					flagb = l;
-				}
-
-			}
-
-		}
+//		for (int l = 0; l < length; l++) {
+//			if (isint(floatcollectArray.get(l)[0])) {
+//				recycle++;
+//				if (recycle == 1)
+//					flagb = l;
+//				else {
+//					write_infile(flagb, l);
+//					flagb = l;
+//				}
+//
+//			}
+//
+//		}
 		write_infile(flagb, translatedata.floatcollectArray.size());
 	}
 
